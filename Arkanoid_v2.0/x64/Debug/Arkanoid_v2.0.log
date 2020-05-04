@@ -1,0 +1,9 @@
+﻿  ball.cpp
+E:\c++_projects\opengl_test\git\Arkanoid_v2.0\Arkanoid_v2.0\ball\ball.cpp(21,1): warning C4305: "inicjowanie": obcięcie z "double" do "const float"
+E:\c++_projects\opengl_test\git\Arkanoid_v2.0\Arkanoid_v2.0\ball\ball.cpp(237,14): warning C4244: "inicjowanie": konwersja z "double" do "float", możliwa utrata danych
+E:\c++_projects\opengl_test\git\Arkanoid_v2.0\Arkanoid_v2.0\ball\ball.cpp(279,14): warning C4244: "inicjowanie": konwersja z "double" do "float", możliwa utrata danych
+  level.cpp
+E:\c++_projects\opengl_test\git\Arkanoid_v2.0\Arkanoid_v2.0\level\level.cpp(51,18): warning C4244: "inicjowanie": konwersja z "double" do "float", możliwa utrata danych
+E:\c++_projects\opengl_test\git\Arkanoid_v2.0\Arkanoid_v2.0\level\level.cpp(67,17): warning C4244: "inicjowanie": konwersja z "double" do "float", możliwa utrata danych
+  Generowanie kodu...
+  Arkanoid_v2.0.vcxproj -> E:\c++_projects\opengl_test\git\Arkanoid_v2.0\x64\Debug\Arkanoid_v2.0.exe
