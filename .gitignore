@@ -1,4 +1,4 @@
-*.obj
+Arkanoid_v2.0/x64/Debug/*.obj
 *.tlog
 .vs*
 *.log
