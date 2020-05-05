@@ -24,27 +24,32 @@
 #include "../stb_image.h"
 #endif
 
+// We define the boundaries between the platform can move
+#ifndef _X_BNDR
+#define _X_BNDR 10.0
+#define _Y_BNDR 10.0
+#endif
+
 #include "../shader/shader.h"
 
 class platform {
 	static const float vertices[];			// vertices of the model
-	static const unsigned int indices[];		// indices of the model
+	static const unsigned int indices[];	// indices of the model (EBO)
 	static unsigned int TextureID;			// texture of the model
-	static unsigned int count;
-	static bool needsTextureLoad;
-	static bool needsVAO;
-	static unsigned int VAO;
-	static unsigned int EBO;
-	static unsigned int VBO;
-	glm::mat4 modelMatrix;
-	glm::vec3 color;		// colors for different players
+	static unsigned int VAO;				// VAO index
+	static unsigned int EBO;				// EBO index
+	static unsigned int VBO;				// VBO index
+	static unsigned int count;				// count of number of objects
+
+	glm::vec3 position;						// position
+	glm::vec3 lwh;							// (half) length, width and height - related to xscale
+	float xscale;							// how to scale the graphic model in x direction (for later, bonuses)
+	glm::mat4 modelMatrix;					// model matrix
+	glm::vec3 color;						// colors storgae for different players
+	int direction;							// direction in which the platform moves
+	float TimeModif;						// time of last update of position
+	float DeltaModif;						// average time between modifications
 public:
-	int direction;
-	float TimeModif;		// time of last update of position
-	float DeltaModif;		// average time between modifications
-	glm::vec3 position;
-	glm::vec3 lwh;			//(half) length, width and height
-	float xscale;
 
 	//constructor, destructor, assignment
 	platform();
@@ -54,11 +59,19 @@ public:
 	~platform();
 	platform& operator = (const platform&);
 
-	// functionalities
-	void set_position(const float&);
-	void change_position(const float&);
-	void set_color(const glm::vec3&);
+	// setters and getters
+	void set_position(const float&);		// sets arbitrary position
 	void set_xscale(const float&);
+	void set_color(const glm::vec3&);
+	glm::vec2 get_position() const;
+	float get_xscale() const;
+	glm::vec3 get_lwh() const;
+	int get_direction() const;
+	float get_TimeModif() const;
+	float get_DeltaModif() const;
+
+	// other methods
+	void change_position(const float&);		// updates position based on mouse movement input
 	void prepare_to_draw(const Shader&);
 	void draw(const Shader&);
 };

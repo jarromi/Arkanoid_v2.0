@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="background\background.cpp" />
     <ClCompile Include="ball\ball.cpp" />
+    <ClCompile Include="bonus\bonus.cpp" />
     <ClCompile Include="brick\brick.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="level\level.cpp" />
@@ -35,6 +36,7 @@
   <ItemGroup>
     <ClInclude Include="background\background.h" />
     <ClInclude Include="ball\ball.h" />
+    <ClInclude Include="bonus\bonus.h" />
     <ClInclude Include="brick\brick.h" />
     <ClInclude Include="level\level.h" />
     <ClInclude Include="multiplayer_client\multiplayer_client.h" />
@@ -50,11 +52,12 @@
     <Image Include="background\floor.png" />
     <Image Include="background\walls.png" />
     <Image Include="ball\white.png" />
+    <Image Include="bonus\white.png" />
     <Image Include="brick\brick.png" />
     <Image Include="platform\platform.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="level\level1_distribution.dat" />
+    <None Include="level\level1.dat" />
     <None Include="shader\fragmentShader.frag" />
     <None Include="shader\vertexShader.vert" />
   </ItemGroup>

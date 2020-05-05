@@ -1,45 +1,45 @@
-#include "brick.h"
+#include "bonus.h"
 
 // -------------------------------------------------
 // Initialization of static variables static variables
 
 	// Since the model of a brick is fairly simple we define here all of its vertices
-const float brick::vertices[] = {
+const float bonus::vertices[] = {
 	//back side
-		-1.0f, -0.5f, -0.5f, 0.0f, 0.0f,
-		 1.0f, -0.5f, -0.5f, 1.0f, 0.0f,
-		 1.0f,  0.5f, -0.5f, 1.0f, 1.0f,
-		-1.0f,  0.5f, -0.5f, 0.0f, 1.0f,
+		-0.25f, -0.25f, -0.25f, 0.0f, 0.0f,
+		 0.25f, -0.25f, -0.25f, 1.0f, 0.0f,
+		 0.25f,  0.25f, -0.25f, 1.0f, 1.0f,
+		-0.25f,  0.25f, -0.25f, 0.0f, 1.0f,
 	//bottom side
-		-1.0f, -0.5f,  0.5f, 0.0f, 0.0f,
-		 1.0f, -0.5f,  0.5f, 1.0f, 0.0f,
-		 1.0f, -0.5f, -0.5f, 1.0f, 1.0f,
-		-1.0f, -0.5f, -0.5f, 0.0f, 1.0f,
+		-0.25f, -0.25f,  0.25f, 0.0f, 0.0f,
+		 0.25f, -0.25f,  0.25f, 1.0f, 0.0f,
+		 0.25f, -0.25f, -0.25f, 1.0f, 1.0f,
+		-0.25f, -0.25f, -0.25f, 0.0f, 1.0f,
 	//right side
-		 1.0f, -0.5f, -0.5f, 0.0f, 0.0f,
-		 1.0f, -0.5f,  0.5f, 1.0f, 0.0f,
-		 1.0f,  0.5f,  0.5f, 1.0f, 1.0f,
-		 1.0f,  0.5f, -0.5f, 0.0f, 1.0f,
+		 0.25f, -0.25f, -0.25f, 0.0f, 0.0f,
+		 0.25f, -0.25f,  0.25f, 1.0f, 0.0f,
+		 0.25f,  0.25f,  0.25f, 1.0f, 1.0f,
+		 0.25f,  0.25f, -0.25f, 0.0f, 1.0f,
 	 //top side
-		 -1.0f,  0.5f, -0.5f, 0.0f, 0.0f,
-		  1.0f,  0.5f, -0.5f, 1.0f, 0.0f,
-		  1.0f,  0.5f,  0.5f, 1.0f, 1.0f,
-		 -1.0f,  0.5f,  0.5f, 0.0f, 1.0f,
+		 -0.25f,  0.25f, -0.25f, 0.0f, 0.0f,
+		  0.25f,  0.25f, -0.25f, 1.0f, 0.0f,
+		  0.25f,  0.25f,  0.25f, 1.0f, 1.0f,
+		 -0.25f,  0.25f,  0.25f, 0.0f, 1.0f,
 	 // left side
-		 -1.0f, -0.5f,  0.5f, 0.0f, 0.0f,
-		 -1.0f, -0.5f, -0.5f, 1.0f, 0.0f,
-		 -1.0f,  0.5f, -0.5f, 1.0f, 1.0f,
-		 -1.0f,  0.5f,  0.5f, 0.0f, 1.0f,
+		 -0.25f, -0.25f,  0.25f, 0.0f, 0.0f,
+		 -0.25f, -0.25f, -0.25f, 1.0f, 0.0f,
+		 -0.25f,  0.25f, -0.25f, 1.0f, 1.0f,
+		 -0.25f,  0.25f,  0.25f, 0.0f, 1.0f,
 	//front side
-		 -1.0f, -0.5f,  0.5f, 0.0f, 0.0f,
-		  1.0f, -0.5f,  0.5f, 1.0f, 0.0f,
-		  1.0f,  0.5f,  0.5f, 1.0f, 1.0f,
-		 -1.0f,  0.5f,  0.5f, 0.0f, 1.0f,
+		 -0.25f, -0.25f,  0.25f, 0.0f, 0.0f,
+		  0.25f, -0.25f,  0.25f, 1.0f, 0.0f,
+		  0.25f,  0.25f,  0.25f, 1.0f, 1.0f,
+		 -0.25f,  0.25f,  0.25f, 0.0f, 1.0f,
 };
 
 	// We draw the object using vertices combined into triangles.
 	// Indices specify which indices to combine into which triangle.
-const unsigned int brick::indices[] = {
+const unsigned int bonus::indices[] = {
 		0, 1, 3,
 		1, 2, 3,
 		4, 5, 7,
@@ -56,35 +56,35 @@ const unsigned int brick::indices[] = {
 
 	// We define 3 main colors of the bricks
 	// Brick color will represent its state - how many hits needed to destroy
-const glm::vec3 brick::colors[] = {
-	glm::vec3(0.1718f, 0.664f, 0.844),
-	glm::vec3(0.844, 0.664f, 0.1718f),
-	glm::vec3(0.1718f, 0.664f, 0.1718f)
+const glm::vec3 bonus::colors[] = {
+	glm::vec3(1.0f, 0.0f, 0.0f),
+	glm::vec3(0.0f, 1.0f, 0.0f),
+	glm::vec3(0.0f, 0.0f, 1.0f)
 };
 
 	// Textures and vertex array object (VAO), element buffer object and vertex buffer object are shared between all of the objects of type "brick"
 	// Here are ids of these objects
-unsigned int brick::TextureID = 0;
-unsigned int brick::VAO = 0;
-unsigned int brick::EBO = 0;
-unsigned int brick::VBO = 0;
+unsigned int bonus::TextureID = 0;
+unsigned int bonus::VAO = 0;
+unsigned int bonus::EBO = 0;
+unsigned int bonus::VBO = 0;
 
 	// We keep count of the number of brick objects through count
-unsigned int brick::count = 0;
+unsigned int bonus::count = 0;
 
 	// Physical dimensions of the brick are stored in lwh
-const glm::vec3 brick::lwh = glm::vec3(1.0f, 0.5f, 0.5f);
+const glm::vec3 bonus::lwh = glm::vec3(0.25f, 0.25f, 0.25f);
 
 // -------------------------------------------------
 // Constructors and destructors
 	// Default constructor
-brick::brick() {
+bonus::bonus() {
 	// keep count of number of bricks
 	++count;
 
 	// set the position and state
-	position = glm::vec3(0.0f, 0.0f, 0.0f);
-	state = 0;	// state: {0 -> 1 hit, 1 -> 2 hits, 2 -> 3 hits, etc.}
+	position = glm::vec3(0.0f, 0.0f, 0.25f);
+	state = 0;	// state: {0 -> polatform wide, 1 -> double balls, 2 -> platform narrow, etc.}
 	modelMatrix = glm::mat4(1.0);
 	modelMatrix = glm::translate(modelMatrix, position);	// sets the object at appropriate position visually
 
@@ -135,12 +135,12 @@ brick::brick() {
 
 	// Positional constructor - sets a brick at a specified location with specified state
 	// Similar to default constructor
-brick::brick(const glm::vec2& _position, const unsigned int& _state) {
+bonus::bonus(const glm::vec2& _position, const unsigned int& _state) {
 	// keep count of number of bricks
 	++count;
 
 	// set the position and state
-	position = glm::vec3(_position, 0.0f);
+	position = glm::vec3(_position, 0.25f);
 	if (position.x > _X_BNDR - lwh.x) {
 		position.x = _X_BNDR - lwh.x;
 	}
@@ -206,7 +206,7 @@ brick::brick(const glm::vec2& _position, const unsigned int& _state) {
 
 	// Copy constructor
 	// Doesn't need texture loading, because if it is called another object of this type already exists
-brick::brick(const brick& _lhs) {
+bonus::bonus(const bonus& _lhs) {
 	// keep count of number of bricks
 	++count;
 
@@ -220,7 +220,7 @@ brick::brick(const brick& _lhs) {
 
 	// Default destructor
 	// If the last object is destroyed, then free the textures, VAO, VBO, and EBO
-brick::~brick() {
+bonus::~bonus() {
 	--count;
 	if (count == 0) {
 		glDeleteTextures(1, &TextureID);
@@ -232,7 +232,7 @@ brick::~brick() {
 
 // ------------------------------------------------------------
 // Assignment operator
-brick& brick::operator = (const brick& _lhs)
+bonus& bonus::operator = (const bonus& _lhs)
 {
 	// set the position and state
 	position = _lhs.position;
@@ -246,8 +246,8 @@ brick& brick::operator = (const brick& _lhs)
 // -------------------------------------------------------------
 // Setters and getters
 	// setter position
-void brick::set_position(const glm::vec2& _position) {
-	position = glm::vec3(_position,0.0f);
+void bonus::set_position(const glm::vec2& _position) {
+	position = glm::vec3(_position, 0.25f);
 	if (position.x > _X_BNDR - lwh.x) {
 		position.x = _X_BNDR - lwh.x;
 	}
@@ -265,23 +265,23 @@ void brick::set_position(const glm::vec2& _position) {
 }
 
 	// setter state
-void brick::set_state(const unsigned int &_state) {
+void bonus::set_state(const unsigned int &_state) {
 	state = _state;
 	if (state > 3) { state = 3; }
 }
 
 	// getter position
-glm::vec2 brick::get_position() const {
+glm::vec2 bonus::get_position() const {
 	return glm::vec2(position.x,position.y);
 }
 
 	// getter position
-unsigned int brick::get_state() const {
+unsigned int bonus::get_state() const {
 	return state;
 }
 
 	// Get the count of bricks
-unsigned int brick::get_count() {
+unsigned int bonus::get_count() {
 	return count;
 }
 
@@ -289,7 +289,7 @@ unsigned int brick::get_count() {
 // Other class methods
 
 	//Prepare OpenGL to draw object of this type
-void brick::prepare_to_draw(const Shader& _SO) {
+void bonus::prepare_to_draw(const Shader& _SO) {
 	_SO.setInt("ourTexture", 0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, TextureID);
@@ -297,7 +297,7 @@ void brick::prepare_to_draw(const Shader& _SO) {
 }
 
 	// Tells OpenGL to draw object of this type
-void brick::draw(const Shader& _SO) {
+void bonus::draw(const Shader& _SO) {
 	unsigned int modelID = glGetUniformLocation(_SO.ID, "model");
 	glUniformMatrix4fv(modelID, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 	unsigned int colorID = glGetUniformLocation(_SO.ID, "ourColor");
@@ -305,18 +305,17 @@ void brick::draw(const Shader& _SO) {
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }
 
-	// Decreases state by 1
-void brick::decrease_state() {
-	if (state > 0) state--;
-}
-
 	// Prepares data for communication with other users
-	// The data that should be communicated are state and count -- if code missed change of state for one player
+	// The data that should be communicated are position, state and count -- if code missed change of state for one player
 	// _lptr - points to the memory position where to write data
 	// _rptr - points to the memory position beyond which we cannot write
 	// returns pointer to the first free address after writing
-int* brick::comm_props(int* _lptr, int *_rptr) {
-	if (_lptr + 2 <= _rptr) {
+int* bonus::comm_props(int* _lptr, int *_rptr) {
+	if (_lptr + 4 <= _rptr) {
+		*_lptr = position.x;
+		_lptr += 1;
+		*_lptr = position.y;
+		_lptr += 1;
 		*_lptr = state;
 		_lptr += 1;
 		*_lptr = count;
@@ -327,4 +326,19 @@ int* brick::comm_props(int* _lptr, int *_rptr) {
 		std::cout << "Not enough space for data.\n";
 		return _lptr;
 	}
+}
+
+	// Propagates bonus down
+void bonus::propagate(const float& deltaTime) {
+	if (position.y > -20.0f) {
+		position.y -= 5. * deltaTime;
+		modelMatrix = glm::mat4(1.0);
+		modelMatrix = glm::translate(modelMatrix, position);
+	}
+}
+
+	// Checks if bonus is out of bounds
+bool bonus::out_of_bounds() {
+	if (position.y < -10.0f) return true;
+	else return false;
 }

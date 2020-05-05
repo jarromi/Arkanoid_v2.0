@@ -1,2 +1,7 @@
-x64*
+*.obj
+*.tlog
 .vs*
+*.log
+*.idb
+*.pdb
+x64

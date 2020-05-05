@@ -29,8 +29,10 @@
 #include "../shader/shader.h"
 
 // We define the boundaries between the ball can move
-#define _X_BNDR 9.5
-#define _Y_BNDR 9.5
+#ifndef _X_BNDR
+#define _X_BNDR 10.0
+#define _Y_BNDR 10.0
+#endif
 
 class ball {
 	static const float vertices[];			// vertices of the model
@@ -43,13 +45,14 @@ class ball {
 	static unsigned int EBO;				// Element Buffer Object ID
 	static unsigned int VBO;				// Verex Buffer Object ID
 	static unsigned int count;				// Counter of objects
+
 	glm::mat4 modelMatrix;					// Model Matrix
-public:
-	static const float rad;					// Radius
 	glm::vec3 velocity;						// Velocity (normalized!)
 	float speed;							// Speed
 	glm::vec3 position;						// Position
 	glm::vec3 futurePosition;				// Position in the next frame
+public:
+	static const float rad;					// Radius (const so can be public)
 
 	//constructor, destructor, assignment
 	ball();
@@ -58,10 +61,17 @@ public:
 	~ball();
 	ball& operator = (const ball&);
 
-	// functionalities
+	// setters and getters
 	void set_position(const glm::vec2&);
 	void set_velocity(const glm::vec2&);
 	void set_speed(const float&);
+	glm::vec2 get_position() const;
+	glm::vec2 get_future_position() const;
+	glm::vec2 get_velocity() const;
+	float get_speed() const;
+	static unsigned int get_count();
+
+	// Other methods
 	void prepare_to_draw(const Shader&);
 	void draw(const Shader&);
 	void propagate(const float&);

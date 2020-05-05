@@ -51,6 +51,9 @@
     <ClCompile Include="main.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
+    <ClCompile Include="bonus\bonus.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="background\background.h">
@@ -86,6 +89,9 @@
     <ClInclude Include="stb_image.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
+    <ClInclude Include="bonus\bonus.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="background\ceiling.png">
@@ -106,10 +112,19 @@
     <Image Include="platform\platform.png">
       <Filter>Pliki zasobów</Filter>
     </Image>
+    <Image Include="bonus\white.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="level\level1_distribution.dat" />
-    <None Include="shader\fragmentShader.frag" />
-    <None Include="shader\vertexShader.vert" />
+    <None Include="shader\vertexShader.vert">
+      <Filter>Pliki zasobów</Filter>
+    </None>
+    <None Include="shader\fragmentShader.frag">
+      <Filter>Pliki zasobów</Filter>
+    </None>
+    <None Include="level\level1.dat">
+      <Filter>Pliki zasobów</Filter>
+    </None>
   </ItemGroup>
 </Project>

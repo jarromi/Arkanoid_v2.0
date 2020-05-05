@@ -3,6 +3,7 @@
 player* player::currentOwner = NULL;
 bool player::firstMouseAction = true;
 
+// Default constructor - creates platform with default color
 player::player() {
 	lastXpos = 0.0f;
 	plat = platform(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -11,15 +12,26 @@ player::player() {
 	}
 }
 
+// Color constructor - creates platform with custom color
+player::player(const glm::vec3 &_color) {
+	lastXpos = 0.0f;
+	plat = platform(0.0f, _color);
+	if (currentOwner == NULL) {
+		currentOwner = this;
+	}
+}
+
+// Destructor - if this was the owner of the controls then release the pointer
 player::~player() {
 	if (currentOwner == this) {
 		currentOwner = NULL;
 	}
 }
 
-void player::draw(const Shader &SO) {
-	plat.prepare_to_draw(SO);
-	plat.draw(SO);
+// Other methods
+
+void player::resetMouseAction() {
+	firstMouseAction = true;
 }
 
 void player::mouse_callback(GLFWwindow* window, double xpos, double ypos) {

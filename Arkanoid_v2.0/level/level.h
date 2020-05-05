@@ -28,30 +28,36 @@
 #include "../brick/brick.h"
 #include "../background/background.h"
 #include "../platform/platform.h"
-#include "../player/player.h"
 #include "../ball/ball.h"
+#include "../bonus/bonus.h"
 
 class level {
 public:
 	std::vector<brick> bricks;
-	player _player;
 	background _background;
-	ball _ball;
+	std::vector<ball> balls;
+	std::vector<bonus> bonuses;
 	unsigned int grade;
 	bool end_level;
 	int score;
 	bool win_cond;
 
 	level();
+	~level();
 	
 	void load_level(const unsigned int&);
-	void play_level(GLFWwindow*, Shader &);
 	void level_process_input(GLFWwindow*);
 
-	bool check_bounce_brick(const brick&, ball&);
-	void check_bounce_platform(const platform&, ball&);
+	void handle_bricks(const Shader&);								// handles bounces of bricks and draws bricks	
+	void handle_bonuses(const Shader&, platform&, const float &);	// handles bonuses	
+	void handle_balls(const Shader &, const float &);				// handles balls movement on screen
 
-	void check_lose(const ball&);
+	bool check_bounce_brick(const int&, const  int&);	// checks for ball bounce off brick
+	void check_bounce_platform(const platform&);		// checks for ball bounce off platform
+	bool check_bonus(const int&, platform&);						// checks for bonus gain
+
+	void check_lose();
+	void clean_level();
 };
 
 #endif

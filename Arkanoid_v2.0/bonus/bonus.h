@@ -1,5 +1,5 @@
-#ifndef _BRICK_
-#define _BRICK_
+#ifndef _BONUS_
+#define _BONUS_
 
 #include <iostream>
 #include <fstream>
@@ -33,7 +33,7 @@
 
 #include "../shader/shader.h"
 
-class brick {
+class bonus {
 
 	static const float vertices[];			// vertices of the model (for the VBO, OpenGL)
 	static const unsigned int indices[];	// indices of the model (for the EBO, OpenGL)
@@ -43,20 +43,21 @@ class brick {
 	static unsigned int EBO;				// element buffer object id
 	static unsigned int VBO;				// vertex buffer object id
 	static unsigned int count;				// number of objects
+	static bool needsGraphicsLoad;			// whether graphics loading is needed
 
 	glm::mat4 modelMatrix;					// model matrix		
-	unsigned int state;						// state (how many hits to destroy)
+	unsigned int state;						// state 
 	glm::vec3 position;						// position of a brick
 public:
 	static const glm::vec3 lwh;				// (half) length, width and height of the brick (const so can be public)
 
 
 	//constructor, destructor, assignment operator
-	brick();
-	brick(const glm::vec2&, const unsigned int &);
-	brick(const brick &);
-	~brick();
-	brick& operator = (const brick &);
+	bonus();
+	bonus(const glm::vec2&, const unsigned int &);
+	bonus(const bonus &);
+	~bonus();
+	bonus& operator = (const bonus &);
 	
 	// getters and setters
 	void set_position(const glm::vec2&);
@@ -68,8 +69,11 @@ public:
 	// other methods
 	void prepare_to_draw(const Shader&);
 	void draw(const Shader &);
-	void decrease_state();
+	void propagate(const float &);
+	bool out_of_bounds();
 	int* comm_props(int*, int*);
+	void load_bonus_graphics();
+	void release_bonus_graphics();
 };
 
 #endif

@@ -22,16 +22,17 @@
 #include "../platform/platform.h"
 
 class player {
-	static player* currentOwner;
-	static bool firstMouseAction;
-	double lastXpos;
+	static player* currentOwner;	// points to the object of type player that is given the control over the mouse
+	static bool firstMouseAction;	// checks if mouse has been moved before
+	double lastXpos;				// last position of the cursor
 public:
 	player();
+	player(const glm::vec3 &);		// Constructor with predefined color of the platform
 	~player();
-	platform plat;
+	platform plat;		// platform is made public in order to simplify its control with mouse input
 
 	// functionalities
-	void draw(const Shader&);
+	static void resetMouseAction();
 	static void mouse_callback(GLFWwindow*, double, double);
 };
 

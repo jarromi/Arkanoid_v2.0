@@ -128,6 +128,18 @@ ball::ball(const glm::vec2 &_pos, const glm::vec2 &_vel, const float &_spd) {
 
 	// set the position and state
 	position = glm::vec3(_pos, 0.0f);
+	if (position.x > _X_BNDR - rad) {
+		position.x = _X_BNDR - rad;
+	}
+	else if (position.x < -_X_BNDR + rad) {
+		position.x = -_X_BNDR + rad;
+	}
+	if (position.y > _Y_BNDR - rad) {
+		position.y = _Y_BNDR - rad;
+	}
+	else if (position.y < -_Y_BNDR + rad) {
+		position.y = -_Y_BNDR + rad;
+	}
 	futurePosition = position;
 	velocity = glm::normalize(glm::vec3(_vel, 0.0f));
 	if (abs(velocity.y) < abs(velocity.x) * 0.3f) {
@@ -228,11 +240,23 @@ ball::~ball() {
 }
 
 // -----------------------------------------------------------------------
-// Other methods and functions
+// Setters and getters
 	// Set position
 void ball::set_position(const glm::vec2& _pos)
 {
 	position = glm::vec3(_pos, 0.0f);
+	if (position.x > _X_BNDR - rad) {
+		position.x = _X_BNDR - rad;
+	}
+	else if (position.x < -_X_BNDR + rad) {
+		position.x = -_X_BNDR + rad;
+	}
+	if (position.y > _Y_BNDR - rad) {
+		position.y = _Y_BNDR - rad;
+	}
+	else if (position.y < -_Y_BNDR + rad) {
+		position.y = -_Y_BNDR + rad;
+	}
 	futurePosition = position;
 	float angle = glfwGetTime()*1000.f;
 	modelMatrix = glm::mat4(1.0);
@@ -256,6 +280,32 @@ void ball::set_speed(const float& _spd) {
 	speed = _spd;
 }
 
+	// Get position
+glm::vec2 ball::get_position() const {
+	return glm::vec2(position.x, position.y);
+}
+	// Get futurePosition
+glm::vec2 ball::get_future_position() const {
+	return glm::vec2(futurePosition.x, futurePosition.y);
+}
+
+	// Get velocity
+glm::vec2 ball::get_velocity() const {
+	return glm::vec2(velocity.x,velocity.y);
+}
+
+	// Get speed
+float ball::get_speed() const {
+	return speed;
+}
+
+	// Get count
+unsigned int ball::get_count() {
+	return count;
+}
+
+// -----------------------------------------------------------------------
+// Other methods and functions
 	// Prepare to draw
 void ball::prepare_to_draw(const Shader& _SO) {
 	_SO.setInt("ourTexture", 0);
@@ -278,16 +328,16 @@ void ball::propagate(const float &deltaTime){
 	position += speed*velocity * deltaTime;
 	float angle = glfwGetTime() * 1000.f;
 	futurePosition = position + speed * velocity * deltaTime;
-	if (position.x > _X_BNDR) {
-		position.x = _X_BNDR;
+	if (position.x > _X_BNDR-rad) {
+		position.x = _X_BNDR-rad;
 		velocity.x *= -1.0f;
 	}
-	else if (position.x < -_X_BNDR) {
-		position.x = -_X_BNDR;
+	else if (position.x < -_X_BNDR+rad) {
+		position.x = -_X_BNDR+rad;
 		velocity.x *= -1.0f;
 	}
-	if (position.y > _Y_BNDR) {
-		position.y = _Y_BNDR;
+	if (position.y > _Y_BNDR-rad) {
+		position.y = _Y_BNDR-rad;
 		velocity.y *= -1.0f;
 	}
 	modelMatrix = glm::mat4(1.0);

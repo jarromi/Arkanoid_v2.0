@@ -36,6 +36,9 @@ using namespace std;
 
 void framebuffer_size_callback(GLFWwindow*, int, int); // a function that will resize the viewport when window size changes
 
+void play_level_single(GLFWwindow*, Shader&, level&, player&);
+
+// A function that creates a context window and intializes gameplay for a single player
 int singleplayer() {
 	//	--------------------------------------------------------------------------------------------------------------------
 // Here starts window and context initialization
@@ -62,24 +65,21 @@ int singleplayer() {
 	}
 
 	//	--------------------------------------------------------------------------------------------------------------------
-	// data communication channel is set now take care of shaders with a special object
+	// now take care of shaders with a special object
 	Shader SO("./shader/vertexShader.vert", "./shader/fragmentShader.frag");
 	SO.use();
 
 	glEnable(GL_DEPTH_TEST);
 
-
-	cout << "Starting game.\n";
+	// Load level and initialize gameplay
+	bonus dummy_bonus(glm::vec2(0.0f, -20.0f), 0);
 	level _level;
+	player _player;
 	_level.load_level(1);
-	_level.play_level(window, SO);
+	play_level_single(window, SO, _level, _player);
 	cout << "                                        \r" << "You scored: " << _level.score << endl;
-	if (_level.win_cond) {
-		_level.win_cond = false;
-		_level.load_level(2);
-		_level.play_level(window, SO);
-		cout << "                                        \r" << "You scored: " << _level.score << endl;
-	}
+	_level.clean_level();
+
 
 	//at the end we want to properly clean the resources
 	glfwTerminate();
@@ -87,6 +87,57 @@ int singleplayer() {
 	return 0;
 }
 
+// Function for handling window resizing
 void framebuffer_size_callback(GLFWwindow*, int width, int height) { // a function that will resize the
 	glViewport(0, 0, width, height);
+}
+
+// Function for gameplay
+void play_level_single(GLFWwindow *window, Shader &_SO, level &_level, player &_player) {
+	// Initialize callbacks, view and projection
+	glfwSetCursorPosCallback(window, player::mouse_callback);
+	if (_level.bricks.size() > 0) _level.end_level = false;
+	float deltaTime = 0.0f;
+	float lastFrame = glfwGetTime();
+
+	_SO.use();
+	glm::mat4 view = glm::mat4(1.0f);
+	view = glm::lookAt(glm::vec3(0.0f, 0.0f, 30.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	unsigned int tView = glGetUniformLocation(_SO.ID, "view");
+	glUniformMatrix4fv(tView, 1, GL_FALSE, glm::value_ptr(view));
+
+	glm::mat4 proj = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+	unsigned int tProj = glGetUniformLocation(_SO.ID, "proj");
+	glUniformMatrix4fv(tProj, 1, GL_FALSE, glm::value_ptr(proj));
+
+	// start rendering loop
+	int i = 0;
+	while (!_level.end_level) {
+		_level.level_process_input(window);
+
+		float timeVal = glfwGetTime();
+		deltaTime = timeVal - lastFrame;
+		lastFrame = timeVal;
+		std::cout << "Your score is: " << _level.score << "\r";
+
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);	// set the default color to which the screen is reset
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// clear the screen
+
+		_level._background.draw(_SO);
+		_level.handle_bricks(_SO);
+		_level.handle_bonuses(_SO, _player.plat, deltaTime);
+		_level.handle_balls(_SO, deltaTime);
+		_level.check_bounce_platform(_player.plat);
+
+		_player.plat.prepare_to_draw(_SO);
+		_player.plat.draw(_SO);
+		_player.plat.draw(_SO);
+
+		_level.check_lose();
+
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+
+	_player.resetMouseAction();
 }
