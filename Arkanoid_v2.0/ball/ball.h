@@ -77,6 +77,7 @@ public:
 	void propagate(const float&);
 	bool out_of_bounds();
 	float* comm_props(float*, float*);
+	float* read_props(float*, float*);
 };
 
 #endif

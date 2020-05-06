@@ -28,6 +28,7 @@
 #include "../platform/platform.h"
 #include "../player/player.h"
 #include "../ball/ball.h"
+#include "../bonus/bonus.h"
 #include "../level/level.h"
 
 #include "singleplayer.h"
@@ -130,7 +131,6 @@ void play_level_single(GLFWwindow *window, Shader &_SO, level &_level, player &_
 		_level.check_bounce_platform(_player.plat);
 
 		_player.plat.prepare_to_draw(_SO);
-		_player.plat.draw(_SO);
 		_player.plat.draw(_SO);
 
 		_level.check_lose();

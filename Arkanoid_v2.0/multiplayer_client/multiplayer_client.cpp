@@ -1,13 +1,10 @@
-/*
 #include <iostream>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include <cstring>
+#include <thread>
 
 #pragma comment(lib,"Ws2_32.lib")
-
-#define DEFAULT_BUFLEN 1024
-#define DEFAULT_PORT "8888"
 
 #ifndef _GLAD_
 #define _GLAD_
@@ -37,7 +34,22 @@
 #include "../platform/platform.h"
 #include "../player/player.h"
 #include "../ball/ball.h"
+#include "../bonus/bonus.h"
 #include "../level/level.h"
+
+#ifndef _COMMUNICATION_GLOBALS_
+#define _COMMUNICATION_GLOBALS_
+// here are global variables and macros for network and thread communication
+#define DEFAULT_BUFLEN 1024
+#define COMM_BUFLEN 128
+#define DEFAULT_PORT "8888"
+char sendbufferC[COMM_BUFLEN];
+char recvbufferC[COMM_BUFLEN];
+bool ReadyToSendC = true;		// true if thread ready to send, false if in the middle of communication
+bool ReadyToUpdateC = false;		// true if data are updated, false if there is no or only old data in the buffer
+unsigned int CommIndC = 0;
+bool ShouldEndC = false;
+#endif
 
 #include "multiplayer_client.h"
 
@@ -45,7 +57,8 @@ using namespace std;
 
 void framebuffer_size_callback_client(GLFWwindow*, int, int); // a function that will resize the viewport when window size changes
 
-void play_level_client(GLFWwindow*, Shader&, level&, SOCKET&, player&);
+void play_level_client(GLFWwindow*, Shader&, level&, player&, player&);
+void communicate_client(SOCKET&);
 
 int mutliplayer_client() {
 
@@ -114,9 +127,8 @@ int mutliplayer_client() {
 	}
 
 	string WelcomeMessage = "Hello, this is client, I want to play Arkanoid.";
-	char recvbuf[DEFAULT_BUFLEN]; // network communication buffer
+	char recvbuf[DEFAULT_BUFLEN] = {}; // network communication buffer
 	int recvbuflen = DEFAULT_BUFLEN;
-	strcpy_s(recvbuf, DEFAULT_BUFLEN, WelcomeMessage.c_str());
 
 	_iRes = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 	if (_iRes == SOCKET_ERROR) {
@@ -126,6 +138,7 @@ int mutliplayer_client() {
 		return 1;
 	}
 	cout << recvbuf << endl;
+	strcpy_s(recvbuf, DEFAULT_BUFLEN, WelcomeMessage.c_str());
 	_iRes = send(ConnectSocket, recvbuf, (int)strlen(recvbuf), 0);
 	if (_iRes == SOCKET_ERROR) {
 		cout << "Send failed! " << WSAGetLastError() << endl;
@@ -167,11 +180,18 @@ int mutliplayer_client() {
 	glEnable(GL_DEPTH_TEST);
 
 
-	cout << "Starting game.\n";
+	cout << "Press space to begin.\n";
+	bonus dummy_bonus(glm::vec2(0.0f, -20.0f), 0);	// this is a dummy invisible bonus to keep graphics resources populated
 	level _level;
+	player _player_client;	// has mouse control over platform but is not host of the game
 	_level.load_level(1);
-	player ClientPlayer;
-	play_level_client(window, SO, _level, ConnectSocket, ClientPlayer);
+	player _player_host;	// is host of the game and remotely has control over platform, but has no access to mouse input
+	//std::thread gameplay(play_level_client, window, std::ref(SO), std::ref(_level), std::ref(_player_host), std::ref(_player_client));
+	std::thread comms(communicate_client, std::ref(ConnectSocket));
+	play_level_client(window, SO, _level, _player_host, _player_client);
+
+	//gameplay.join();
+	comms.join();
 
 	glfwTerminate();
 
@@ -190,12 +210,15 @@ int mutliplayer_client() {
 	return 0;
 }
 
+// This function handles resizing of window
 void framebuffer_size_callback_client(GLFWwindow*, int width, int height) { // a function that will resize the
 	glViewport(0, 0, width, height);
 }
 
-
-void play_level_client(GLFWwindow* window, Shader& _SO, level& _level, SOCKET& ConnectSocket, player& _player2) {
+// This function is responsible for handling gamplay
+	// player1 is host
+	// player2 is here mouse controlled
+void play_level_client(GLFWwindow* window, Shader& _SO, level& _level, player& _player1, player& _player2) {
 	glfwSetCursorPosCallback(window, player::mouse_callback);
 	if (_level.bricks.size() > 0) _level.end_level = false;
 	float deltaTime = 0.0f;
@@ -211,77 +234,83 @@ void play_level_client(GLFWwindow* window, Shader& _SO, level& _level, SOCKET& C
 	unsigned int tProj = glGetUniformLocation(_SO.ID, "proj");
 	glUniformMatrix4fv(tProj, 1, GL_FALSE, glm::value_ptr(proj));
 
-	float databuffer[32];
-	int i = 0;
-	int _iRes = 0;
+	// Here starts gamplay/rendering loop
 	while (!_level.end_level) {
 		_level.level_process_input(window);
 
 		float timeVal = glfwGetTime();
 		deltaTime = timeVal - lastFrame;
 		lastFrame = timeVal;
-		std::cout << "Your score is: " << _level.score << "\r";
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);	// set the default color to which the screen is reset
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// clear the screen
 
 		_level._background.draw(_SO);
 
-		i = 0;
-		_level.bricks[0].prepare_to_draw(_SO);
-		while (i < _level.bricks.size()) {
-			if (_level.check_bounce_brick(_level.bricks[i], _level._ball)) {
-				_level.bricks.erase(_level.bricks.begin() + i);
-				_level.score += 10 * _level.grade;
-				//std::cout << "Score: " << score << std::endl;
-				//std::cout << "No. of bricks left: " << bricks.size() << std::endl;
-				continue;
-			}
-			_level.bricks[i].draw(_SO);
-			++i;
-		}
-		if (_level.bricks.size() == 0) {
-			_level.end_level = true;
-			_level.win_cond = true;
-		}
+		_level.handle_bricks(_SO);
+		_level.handle_bonuses(_SO, _player1.plat, deltaTime);
+		_level.handle_bonuses(_SO, _player2.plat, deltaTime);
+		_level.handle_balls(_SO, deltaTime);
+		_level.check_bounce_platform(_player1.plat);
+		_level.check_bounce_platform(_player2.plat);
 
-		_level._player.draw(_SO);
-		_player2.draw(_SO);
+		_player1.plat.prepare_to_draw(_SO);
+		_player1.plat.draw(_SO);
+		_player2.plat.draw(_SO);
 
-		_level._ball.prepare_to_draw(_SO);
-		_level._ball.draw(_SO);
-		_level._ball.propagate(deltaTime);
-		_level.check_bounce_platform(_level._player.plat, _level._ball);
-		_level.check_bounce_platform(_player2.plat, _level._ball);
-		_level.check_lose(_level._ball);
-
-		//now we perform communication
-
-		_iRes = recv(ConnectSocket, (char*)databuffer, 32 * sizeof(float), 0);
-		if (_iRes == SOCKET_ERROR) {
-			cout << "Recive failed! " << WSAGetLastError() << endl;
-		}
-		//ball data
-		_level._ball.velocity.x = databuffer[0]; _level._ball.velocity.y = databuffer[1]; _level._ball.speed = databuffer[2]; _level._ball.position.x = databuffer[3];
-		_level._ball.position.y = databuffer[4]; _level._ball.futurePosition.x = databuffer[5]; _level._ball.futurePosition.y = databuffer[6];
-		// platform player 1 data
-		_player2.plat.set_position(databuffer[7]); _player2.plat.lwh.x = databuffer[8]; _player2.plat.xscale = databuffer[9];
-		 _player2.plat.TimeModif = databuffer[10];  _player2.plat.DeltaModif = databuffer[11];  _player2.plat.direction = (int)databuffer[12];
-
-		 databuffer[0] = _level._player.plat.position.x;
-		 databuffer[1] = _level._player.plat.lwh.x;
-		 databuffer[2] = _level._player.plat.xscale;
-		 databuffer[3] = _level._player.plat.TimeModif;
-		 databuffer[4] = _level._player.plat.DeltaModif;
-		 databuffer[5] = (float)_level._player.plat.direction;
-		_iRes = send(ConnectSocket, (char*)databuffer, 6 * sizeof(float), 0);
-		if (_iRes == SOCKET_ERROR) {
-			cout << "Send failed! " << WSAGetLastError() << endl;
-		}
-
+		_level.check_lose();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+
+		//now we perform communication
+		if (ReadyToUpdateC) {
+			// update based on recieved data
+			float* _lptr = (float*)recvbufferC;	// beggining of memory for communication
+			float* _rptr = (float*)(recvbufferC + COMM_BUFLEN);	// end of memory for communication
+			CommIndC = (int)*_lptr;
+			_lptr += 1;
+			// copy balls data
+			_lptr = _level.balls[CommIndC % _level.balls.size()].read_props(_lptr, _rptr);
+			// copy platform data
+			_lptr = _player1.plat.read_props(_lptr, _rptr);
+			// copy bonus data
+			//_lptr = _level.bonuses[CommIndC % _level.bonuses.size()].read_props(_lptr, _rptr);
+			// copy brick data
+			//_lptr = (float*)_level.bricks[CommIndC % _level.bricks.size()].read_props((int*)_lptr, (int*)_rptr);
+			ReadyToUpdateC = false;	// tell the communication thread that it needs to send data
+		}
+		//update recieved data
+		if (ReadyToSendC) {
+			float* _lptr = (float*)sendbufferC;	// beggining of memory for communication
+			float* _rptr = (float*)(sendbufferC + COMM_BUFLEN);	// end of memory for communication
+			// update player 2 info
+			_lptr = _player2.plat.comm_props(_lptr, _rptr);
+			ReadyToSendC = false;	// data are updated and recvbuffer has old data now
+		}
+
+	}
+	ShouldEndC = true;
+}
+
+// This is a function run in thread comms that is responsible for server-client communication
+void communicate_client(SOCKET& ClientSocket) {
+	int _iRes;
+	while (!ShouldEndC) {
+		std::cout << glfwGetTime() << "\r";
+		if (!ReadyToSendC) {	// if ReadyToSend = true there's no need to communicate, if false there are new data in sendbuffer
+			std::cout << "Waiting for message.\n";
+			_iRes = recv(ClientSocket, (char*)recvbufferC, 21 * sizeof(float), 0);	// send data to client
+			if (_iRes == SOCKET_ERROR) {
+				cout << "Recive failed! " << WSAGetLastError() << endl;
+			}
+			std::cout << "Attempting to send.\n";
+			_iRes = send(ClientSocket, (char*)sendbufferC, 6 * sizeof(float), 0);	// get data from client
+			if (_iRes == SOCKET_ERROR) {
+				cout << "Send failed! " << WSAGetLastError() << endl;
+			}
+			ReadyToSendC = true;
+			ReadyToUpdateC = true;
+		}
 	}
 }
-*/

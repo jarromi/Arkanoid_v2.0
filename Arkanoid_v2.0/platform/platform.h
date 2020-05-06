@@ -74,6 +74,9 @@ public:
 	void change_position(const float&);		// updates position based on mouse movement input
 	void prepare_to_draw(const Shader&);
 	void draw(const Shader&);
+
+	float* comm_props(float*, float*);
+	float* read_props(float*, float*);
 };
 
 #endif //_PLATFORM_

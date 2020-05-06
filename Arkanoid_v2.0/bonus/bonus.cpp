@@ -310,19 +310,42 @@ void bonus::draw(const Shader& _SO) {
 	// _lptr - points to the memory position where to write data
 	// _rptr - points to the memory position beyond which we cannot write
 	// returns pointer to the first free address after writing
-int* bonus::comm_props(int* _lptr, int *_rptr) {
+float* bonus::comm_props(float* _lptr, float*_rptr) {
 	if (_lptr + 4 <= _rptr) {
 		*_lptr = position.x;
 		_lptr += 1;
 		*_lptr = position.y;
 		_lptr += 1;
-		*_lptr = state;
+		*_lptr = (float)state;
 		_lptr += 1;
-		*_lptr = count;
+		*_lptr = (float)count;
 		_lptr += 1;
 		return _lptr;
 	}
 	else{
+		std::cout << "Not enough space for data.\n";
+		return _lptr;
+	}
+}
+
+// Prepares data for communication with other users
+// The data that should be communicated are position, state and count -- if code missed change of state for one player
+// _lptr - points to the memory position where to read data from
+// _rptr - points to the memory position beyond which we cannot read
+// returns pointer to the first free address after writing
+float* bonus::read_props(float* _lptr, float* _rptr) {
+	if (_lptr + 4 <= _rptr) {
+		position.x = *_lptr;
+		_lptr += 1;
+		position.y = *_lptr;
+		_lptr += 1;
+		state = (int)*_lptr;
+		_lptr += 1;
+		count = (int)*_lptr;
+		_lptr += 1;
+		return _lptr;
+	}
+	else {
 		std::cout << "Not enough space for data.\n";
 		return _lptr;
 	}

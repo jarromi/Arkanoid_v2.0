@@ -328,3 +328,22 @@ int* brick::comm_props(int* _lptr, int *_rptr) {
 		return _lptr;
 	}
 }
+
+// Prepares data for communication with other users
+// The data that should be communicated are state and count -- if code missed change of state for one player
+// _lptr - points to the memory position where to write data
+// _rptr - points to the memory position beyond which we cannot write
+// returns pointer to the first free address after writing
+int* brick::read_props(int* _lptr, int* _rptr) {
+	if (_lptr + 2 <= _rptr) {
+		 state = *_lptr;
+		_lptr += 1;
+		count = *_lptr;
+		_lptr += 1;
+		return _lptr;
+	}
+	else {
+		std::cout << "Not enough space for data.\n";
+		return _lptr;
+	}
+}

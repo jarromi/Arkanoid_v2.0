@@ -71,9 +71,8 @@ public:
 	void draw(const Shader &);
 	void propagate(const float &);
 	bool out_of_bounds();
-	int* comm_props(int*, int*);
-	void load_bonus_graphics();
-	void release_bonus_graphics();
+	float* comm_props(float*, float*);
+	float* read_props(float*, float*);
 };
 
 #endif

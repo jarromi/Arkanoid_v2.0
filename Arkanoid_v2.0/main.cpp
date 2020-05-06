@@ -41,14 +41,14 @@ int main() {
 			}
 			break;
 		case 2:
-			//exitstat = mutliplayer_server();
+			exitstat = mutliplayer_server();
 			if (exitstat != 0) {
 				cout << "Something went wrong with the game.\n";
 				endstat = true;
 			}
 			break;
 		case 3:
-			//exitstat = mutliplayer_client();
+			exitstat = mutliplayer_client();
 			if (exitstat != 0) {
 				cout << "Something went wrong with the game.\n";
 				endstat = true;

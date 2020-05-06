@@ -388,3 +388,39 @@ float* ball::comm_props(float* _lptr, float* _rptr) {
 		return _lptr;
 	}
 }
+// Function for network communication
+// We need to exchange information about about:
+// velocity, position, futurePosition, speed, and count
+// _lptr - points to the memory position where to write data
+// _rptr - points to the memory position beyond which we cannot write
+// returns pointer to the first free address after writing
+float* ball::read_props(float* _lptr, float* _rptr) {
+	if (_lptr + 8 <= _rptr) {
+		//velocity
+		velocity.x = *_lptr;
+		_lptr += 1;
+		velocity.y = *_lptr;;
+		_lptr += 1;
+		//position
+		position.x = *_lptr;;
+		_lptr += 1;
+		position.y = *_lptr;;
+		_lptr += 1;
+		//futurePosition
+		futurePosition.x = *_lptr;;
+		_lptr += 1;
+		futurePosition.y = *_lptr;;
+		_lptr += 1;
+		//speed
+		speed = *_lptr;;
+		_lptr += 1;
+		//count
+		count = (int)*_lptr;;
+		_lptr += 1;
+		return _lptr;
+	}
+	else {
+		std::cout << "Not enough space in the given pointer.\n";
+		return _lptr;
+	}
+}

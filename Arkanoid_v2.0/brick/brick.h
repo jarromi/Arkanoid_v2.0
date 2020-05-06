@@ -70,6 +70,7 @@ public:
 	void draw(const Shader &);
 	void decrease_state();
 	int* comm_props(int*, int*);
+	int* read_props(int*, int*);
 };
 
 #endif

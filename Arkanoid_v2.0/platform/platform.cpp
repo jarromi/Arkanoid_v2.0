@@ -396,3 +396,67 @@ void platform::draw(const Shader& _SO) {
 	glUniform3f(colorID, color.x, color.y, color.z);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }
+
+// Function for network communication
+// We need to exchange information about about:
+// velocity, position, futurePosition, speed, and count
+// _lptr - points to the memory position where to write data
+// _rptr - points to the memory position beyond which we cannot write
+// returns pointer to the first free address after writing
+float* platform::comm_props(float* _lptr, float* _rptr) {
+	if (_lptr + 6 <= _rptr) {
+		//position
+		*_lptr = position.x;
+		_lptr += 1;
+		*_lptr = position.y;
+		_lptr += 1;
+		//xscale
+		*_lptr = xscale;
+		_lptr += 1;
+		// direction of platform motion
+		*_lptr = (float)direction;
+		_lptr += 1;
+		// time of last modification and time difference
+		*_lptr = TimeModif;
+		_lptr += 1;
+		*_lptr = DeltaModif;
+		_lptr += 1;
+		return _lptr;
+	}
+	else {
+		std::cout << "Not enough space in the given pointer.\n";
+		return _lptr;
+	}
+}
+
+// Function for network communication
+// We need to exchange information about about:
+// position, xscale, etc.
+// _lptr - points to the memory position where to read data from
+// _rptr - points to the memory position beyond which we cannot read
+// returns pointer to the first free address after writing
+float* platform::read_props(float* _lptr, float* _rptr) {
+	if (_lptr + 6 <= _rptr) {
+		//position
+		 position.x = *_lptr;
+		_lptr += 1;
+		position.y = *_lptr;
+		_lptr += 1;
+		//xscale
+		xscale = *_lptr;
+		_lptr += 1;
+		// direction of platform motion
+		direction = (int)*_lptr;
+		_lptr += 1;
+		// time of last modification and time difference
+		TimeModif = *_lptr;
+		_lptr += 1;
+		DeltaModif = *_lptr;
+		_lptr += 1;
+		return _lptr;
+	}
+	else {
+		std::cout << "Not enough space in the given pointer.\n";
+		return _lptr;
+	}
+}
