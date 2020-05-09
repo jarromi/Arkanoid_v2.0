@@ -443,7 +443,7 @@ float* platform::read_props(float* _lptr, float* _rptr) {
 		position.y = *_lptr;
 		_lptr += 1;
 		//xscale
-		xscale = *_lptr;
+		set_xscale(*_lptr);
 		_lptr += 1;
 		// direction of platform motion
 		direction = (int)*_lptr;

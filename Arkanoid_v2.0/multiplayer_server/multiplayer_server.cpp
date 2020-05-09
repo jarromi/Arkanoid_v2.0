@@ -266,20 +266,19 @@ void play_level_server(GLFWwindow *window, Shader &_SO, level &_level, player& _
 
 		//now we copy data to and from buffers if communication thread is ready
 		if (ReadyToSendS) {
-			std::cout << "Send clause server\n";
 			//prepare data to send
 			float* _lptr = (float*)sendbufferS;	// beggining of memory for communication
 			float* _rptr = (float*)(sendbufferS + COMM_BUFLEN);	// end of memory for communication
-			*_lptr = (float)CommIndS;
-			_lptr += 1;
-			++CommIndS;
-			std::cout << "Copied CommIndS\n";
+			//*_lptr = (float)CommIndS;
+			//_lptr += 1;
+			//++CommIndS;
+			//std::cout << "Copied CommIndS\n";
 			// copy balls data
-			_lptr = _level.balls[CommIndS % _level.balls.size()].comm_props(_lptr, _rptr);
-			std::cout << "Copied ball\n";
+			//_lptr = _level.balls[CommIndS % _level.balls.size()].comm_props(_lptr, _rptr);
+			//std::cout << "Copied ball\n";
 			// copy platform data
 			_lptr = _player1.plat.comm_props(_lptr, _rptr);
-			std::cout << "Copied platf\n";
+			//std::cout << "Copied platf\n";
 			// copy bonus data
 			//_lptr = _level.bonuses[CommIndS % _level.bonuses.size()].comm_props(_lptr, _rptr);
 			//std::cout << "Copied bonus\n";
@@ -287,11 +286,11 @@ void play_level_server(GLFWwindow *window, Shader &_SO, level &_level, player& _
 			//_lptr = (float*)_level.bricks[CommIndS % _level.bricks.size()].comm_props((int*)_lptr, (int*)_rptr);
 			//std::cout << "Copied brick\n";
 			ReadyToSendS = false;	// tell the communication thread that it needs to send data
-			std::cout << "End clause server\n";
+			//std::cout << "End clause server\n";
 		}
 		//update recieved data
 		if(ReadyToUpdateS){
-			std::cout << "Update clause server\n";
+			//std::cout << "Update clause server\n";
 			float* _lptr = (float*)recvbufferS;	// beggining of memory for communication
 			float* _rptr = (float*)(recvbufferS + COMM_BUFLEN);	// end of memory for communication
 			// update player 2 info
@@ -301,6 +300,8 @@ void play_level_server(GLFWwindow *window, Shader &_SO, level &_level, player& _
 
 	}
 	ShouldEndS = true;
+	ReadyToSendS = true;
+	ReadyToUpdateS = false;
 }
 
 // This is a function run in thread comms that is responsible for server-client communication
@@ -309,20 +310,17 @@ void communicate_server(SOCKET& ClientSocket) {
 	while (!ShouldEndS) {
 		std::cout << glfwGetTime() << "\r";
 		if (!ReadyToSendS) {	// if ReadyToSend = true there's no need to communicate, if false there are new data in sendbuffer
-			std::cout << "Attempting to send.\n";
-			_iRes = send(ClientSocket, (char*)sendbufferS, 21 * sizeof(float), 0);	// send data to client
+			_iRes = send(ClientSocket, (char*)sendbufferS, 6 * sizeof(float), 0);	// send data to client
 			if (_iRes == SOCKET_ERROR) {
 				cout << "Send failed! " << WSAGetLastError() << endl;
 			}
-			std::cout << "Server sent data " << _iRes << "\n";
-			std::cout << "Waiting for message.\n";
 			_iRes = recv(ClientSocket, (char*)recvbufferS, 6 * sizeof(float), 0);	// get data from client
 			if (_iRes == SOCKET_ERROR) {
 				cout << "Recive failed! " << WSAGetLastError() << endl;
 			}
-			std::cout << "Server received data " << _iRes << "\n";
 			ReadyToSendS = true;
 			ReadyToUpdateS = true;
 		}
 	}
+	ShouldEndS = false;
 }

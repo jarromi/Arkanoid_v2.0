@@ -67,7 +67,7 @@ void level::load_level(const unsigned int& _grade) {
 void level::level_process_input(GLFWwindow* window) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) { // if the escape key was pressed then
 		end_level = true;
-		glfwSetWindowShouldClose(window, true);	// set the variable for window closing to true
+		//glfwSetWindowShouldClose(window, true);	// set the variable for window closing to true
 		Sleep(10);
 	}
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) { // if the escape key was pressed then

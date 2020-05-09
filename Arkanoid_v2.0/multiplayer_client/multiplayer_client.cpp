@@ -268,10 +268,10 @@ void play_level_client(GLFWwindow* window, Shader& _SO, level& _level, player& _
 			// update based on recieved data
 			float* _lptr = (float*)recvbufferC;	// beggining of memory for communication
 			float* _rptr = (float*)(recvbufferC + COMM_BUFLEN);	// end of memory for communication
-			CommIndC = (int)*_lptr;
-			_lptr += 1;
+			//CommIndC = (int)*_lptr;
+			//_lptr += 1;
 			// copy balls data
-			_lptr = _level.balls[CommIndC % _level.balls.size()].read_props(_lptr, _rptr);
+			//_lptr = _level.balls[CommIndC % _level.balls.size()].read_props(_lptr, _rptr);
 			// copy platform data
 			_lptr = _player1.plat.read_props(_lptr, _rptr);
 			// copy bonus data
@@ -291,6 +291,8 @@ void play_level_client(GLFWwindow* window, Shader& _SO, level& _level, player& _
 
 	}
 	ShouldEndC = true;
+	ReadyToSendC = true;
+	ReadyToUpdateC = false;
 }
 
 // This is a function run in thread comms that is responsible for server-client communication
@@ -299,12 +301,10 @@ void communicate_client(SOCKET& ClientSocket) {
 	while (!ShouldEndC) {
 		std::cout << glfwGetTime() << "\r";
 		if (!ReadyToSendC) {	// if ReadyToSend = true there's no need to communicate, if false there are new data in sendbuffer
-			std::cout << "Waiting for message.\n";
-			_iRes = recv(ClientSocket, (char*)recvbufferC, 21 * sizeof(float), 0);	// send data to client
+			_iRes = recv(ClientSocket, (char*)recvbufferC, 6 * sizeof(float), 0);	// send data to client
 			if (_iRes == SOCKET_ERROR) {
 				cout << "Recive failed! " << WSAGetLastError() << endl;
 			}
-			std::cout << "Attempting to send.\n";
 			_iRes = send(ClientSocket, (char*)sendbufferC, 6 * sizeof(float), 0);	// get data from client
 			if (_iRes == SOCKET_ERROR) {
 				cout << "Send failed! " << WSAGetLastError() << endl;
@@ -313,4 +313,5 @@ void communicate_client(SOCKET& ClientSocket) {
 			ReadyToUpdateC = true;
 		}
 	}
+	ShouldEndC = false;
 }
