@@ -41,14 +41,16 @@
 #define _COMMUNICATION_GLOBALS_
 // here are global variables and macros for network and thread communication
 #define DEFAULT_BUFLEN 1024
-#define COMM_BUFLEN 128
+#define COMM_BUFLEN 512
 #define DEFAULT_PORT "8888"
 char sendbufferC[COMM_BUFLEN];
 char recvbufferC[COMM_BUFLEN];
 bool ReadyToSendC = true;		// true if thread ready to send, false if in the middle of communication
 bool ReadyToUpdateC = false;		// true if data are updated, false if there is no or only old data in the buffer
-unsigned int CommIndC = 0;
 bool ShouldEndC = false;
+bool CommunicationControlC = false;
+int bricks_count_newC = 0;
+int bonuses_count_newC = 0;
 #endif
 
 #include "multiplayer_client.h"
@@ -139,14 +141,15 @@ int mutliplayer_client() {
 	}
 	cout << recvbuf << endl;
 	strcpy_s(recvbuf, DEFAULT_BUFLEN, WelcomeMessage.c_str());
-	_iRes = send(ConnectSocket, recvbuf, (int)strlen(recvbuf), 0);
+	_iRes = send(ConnectSocket, recvbuf, WelcomeMessage.length(), 0);
 	if (_iRes == SOCKET_ERROR) {
 		cout << "Send failed! " << WSAGetLastError() << endl;
 		closesocket(ConnectSocket);
 		WSACleanup();
 		return 1;
 	}
-
+	Sleep(1000);
+	cout << "Now I start to load\n";
 
 	//	--------------------------------------------------------------------------------------------------------------------
 // Here starts window and context initialization
@@ -155,7 +158,7 @@ int mutliplayer_client() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);	// OpenGL version *.3
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // OpenGL use core profile
 	// Now we create a window (800x600 pixels)
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Arkanoid_v0.1", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(800, 600, "Arkanoid_v2.0_Client", NULL, NULL);
 	if (window == NULL) {
 		cout << "Failed to open window.\n";
 		return 1;
@@ -185,6 +188,8 @@ int mutliplayer_client() {
 	level _level;
 	player _player_client;	// has mouse control over platform but is not host of the game
 	_level.load_level(1);
+	bricks_count_newC = _level.bricks.size();
+	bonuses_count_newC = _level.bonuses.size();
 	player _player_host;	// is host of the game and remotely has control over platform, but has no access to mouse input
 	//std::thread gameplay(play_level_client, window, std::ref(SO), std::ref(_level), std::ref(_player_host), std::ref(_player_client));
 	std::thread comms(communicate_client, std::ref(ConnectSocket));
@@ -192,6 +197,12 @@ int mutliplayer_client() {
 
 	//gameplay.join();
 	comms.join();
+
+	//reset globals
+	ReadyToSendC = true;
+	ReadyToUpdateC = false;
+	ShouldEndC = false;
+	CommunicationControlC = false;
 
 	glfwTerminate();
 
@@ -219,8 +230,8 @@ void framebuffer_size_callback_client(GLFWwindow*, int width, int height) { // a
 	// player1 is host
 	// player2 is here mouse controlled
 void play_level_client(GLFWwindow* window, Shader& _SO, level& _level, player& _player1, player& _player2) {
-	glfwSetCursorPosCallback(window, player::mouse_callback);
 	if (_level.bricks.size() > 0) _level.end_level = false;
+	glfwSetCursorPosCallback(window, player::mouse_callback);
 	float deltaTime = 0.0f;
 	float lastFrame = glfwGetTime();
 
@@ -264,53 +275,105 @@ void play_level_client(GLFWwindow* window, Shader& _SO, level& _level, player& _
 		glfwPollEvents();
 
 		//now we perform communication
-		if (ReadyToUpdateC) {
-			// update based on recieved data
-			float* _lptr = (float*)recvbufferC;	// beggining of memory for communication
-			float* _rptr = (float*)(recvbufferC + COMM_BUFLEN);	// end of memory for communication
-			//CommIndC = (int)*_lptr;
-			//_lptr += 1;
-			// copy balls data
-			//_lptr = _level.balls[CommIndC % _level.balls.size()].read_props(_lptr, _rptr);
-			// copy platform data
-			_lptr = _player1.plat.read_props(_lptr, _rptr);
-			// copy bonus data
-			//_lptr = _level.bonuses[CommIndC % _level.bonuses.size()].read_props(_lptr, _rptr);
-			// copy brick data
-			//_lptr = (float*)_level.bricks[CommIndC % _level.bricks.size()].read_props((int*)_lptr, (int*)_rptr);
-			ReadyToUpdateC = false;	// tell the communication thread that it needs to send data
-		}
-		//update recieved data
-		if (ReadyToSendC) {
-			float* _lptr = (float*)sendbufferC;	// beggining of memory for communication
-			float* _rptr = (float*)(sendbufferC + COMM_BUFLEN);	// end of memory for communication
-			// update player 2 info
-			_lptr = _player2.plat.comm_props(_lptr, _rptr);
-			ReadyToSendC = false;	// data are updated and recvbuffer has old data now
+		if (!CommunicationControlC) {
+			if (ReadyToUpdateC) {
+				// update based on recieved data
+				float* _lptr = (float*)recvbufferC;	// beggining of memory for communication
+				float* _rptr = (float*)(recvbufferC + COMM_BUFLEN);	// end of memory for communication
+				// get balls count
+				int host_ball_count = *((int*)_lptr);
+				_lptr += 1;
+				bricks_count_newC = *((int*)_lptr);
+				_lptr += 1;
+				bonuses_count_newC = *((int*)_lptr);
+				_lptr += 1;
+				// copy platform data
+				_lptr = _player1.plat.read_props(_lptr, _rptr);
+				// copy balls data
+				for (int i = 0; i < host_ball_count; ++i) {
+					if (i >= _level.balls.size()) { // add neew balls if not enough
+						ball new_ball;
+						_level.balls.push_back(new_ball);
+						std::cout << "Adding a ball\t" << _level.balls.size() << std::endl;
+					}
+					_lptr = _level.balls[i].read_props(_lptr, _rptr);
+				}
+				while (host_ball_count < _level.balls.size()) { // erase balls over the limit
+					_level.balls.erase(_level.balls.begin() + (_level.balls.size() - 1));
+					std::cout << "Removing a ball\t" << _level.balls.size() << std::endl;
+				}
+				if (bricks_count_newC != _level.bricks.size()) {
+					std::cout << "Here I update count of bricks to " << bricks_count_newC << "\n";
+					for (int i = 0; i < bricks_count_newC; ++i) {
+						if (i >= _level.bricks.size()) {
+							brick new_brick;
+							_level.bricks.push_back(new_brick);
+							std::cout << "Adding a brick\t" << _level.bricks.size() << std::endl;
+						}
+						_lptr = _level.bricks[i].read_props(_lptr, _rptr);
+					}
+					while (bricks_count_newC < _level.bricks.size()) {
+						_level.bricks.erase(_level.bricks.begin() + (_level.bricks.size() - 1));
+						std::cout << "Removing a brick\t" << _level.bricks.size() << std::endl;
+					}
+				}
+				if (bonuses_count_newC != _level.bonuses.size()) {
+					std::cout << "Here I update count of bonuses to " << bonuses_count_newC << "\n";
+					for (int i = 0; i < bonuses_count_newC; ++i) {
+						if (i >= _level.bonuses.size()) {
+							bonus new_bonus;
+							_level.bonuses.push_back(new_bonus);
+							std::cout << "Adding a bonus\t" << _level.bonuses.size() << std::endl;
+						}
+						_lptr = _level.bonuses[i].read_props(_lptr, _rptr);
+					}
+					while (bonuses_count_newC < _level.bonuses.size()) {
+						_level.bonuses.erase(_level.bonuses.begin() + (_level.bonuses.size() - 1));
+						std::cout << "Removing a bonus\t" << _level.bonuses.size() << std::endl;
+					}
+				}
+				ReadyToUpdateC = false;	// tell the communication thread that it needs to send data
+			}
+			//update recieved data
+			if (ReadyToSendC) {
+				float* _lptr = (float*)sendbufferC;	// beggining of memory for communication
+				float* _rptr = (float*)(sendbufferC + COMM_BUFLEN);	// end of memory for communication
+				// update player 2 info
+				_lptr = _player2.plat.comm_props(_lptr, _rptr);
+				ReadyToSendC = false;	// data are updated and recvbuffer has old data now
+			}
+			CommunicationControlC = true;
 		}
 
 	}
 	ShouldEndC = true;
 	ReadyToSendC = true;
 	ReadyToUpdateC = false;
+	CommunicationControlC = false;
 }
 
 // This is a function run in thread comms that is responsible for server-client communication
 void communicate_client(SOCKET& ClientSocket) {
 	int _iRes;
 	while (!ShouldEndC) {
-		std::cout << glfwGetTime() << "\r";
-		if (!ReadyToSendC) {	// if ReadyToSend = true there's no need to communicate, if false there are new data in sendbuffer
-			_iRes = recv(ClientSocket, (char*)recvbufferC, 6 * sizeof(float), 0);	// send data to client
-			if (_iRes == SOCKET_ERROR) {
-				cout << "Recive failed! " << WSAGetLastError() << endl;
+		//std::cout << glfwGetTime() << "\r";
+		if (CommunicationControlC) {
+			if (!ReadyToSendC) {	// if ReadyToSend = true there's no need to communicate, if false there are new data in sendbuffer
+				_iRes = recv(ClientSocket, (char*)recvbufferC, COMM_BUFLEN, 0);	// send data to client
+				if (_iRes == SOCKET_ERROR) {
+					cout << "Recive failed! " << WSAGetLastError() << ReadyToUpdateC << endl;
+				}
+				else {
+					ReadyToUpdateC = true;
+				}
+				//std::cout << _iRes << "\n";
+				_iRes = send(ClientSocket, (char*)sendbufferC, 6 * sizeof(float), 0);	// get data from client
+				if (_iRes == SOCKET_ERROR) {
+					cout << "Send failed! " << WSAGetLastError() << endl;
+				}
+				ReadyToSendC = true;
 			}
-			_iRes = send(ClientSocket, (char*)sendbufferC, 6 * sizeof(float), 0);	// get data from client
-			if (_iRes == SOCKET_ERROR) {
-				cout << "Send failed! " << WSAGetLastError() << endl;
-			}
-			ReadyToSendC = true;
-			ReadyToUpdateC = true;
+			CommunicationControlC = false;
 		}
 	}
 	ShouldEndC = false;

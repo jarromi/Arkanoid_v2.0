@@ -315,11 +315,13 @@ void brick::decrease_state() {
 	// _lptr - points to the memory position where to write data
 	// _rptr - points to the memory position beyond which we cannot write
 	// returns pointer to the first free address after writing
-int* brick::comm_props(int* _lptr, int *_rptr) {
-	if (_lptr + 2 <= _rptr) {
-		*_lptr = state;
+float* brick::comm_props(float* _lptr, float*_rptr) {
+	if (_lptr + 3 <= _rptr) {
+		*_lptr = position.x;
 		_lptr += 1;
-		*_lptr = count;
+		*_lptr = position.y;
+		_lptr += 1;
+		*_lptr = (float)state;
 		_lptr += 1;
 		return _lptr;
 	}
@@ -334,12 +336,16 @@ int* brick::comm_props(int* _lptr, int *_rptr) {
 // _lptr - points to the memory position where to write data
 // _rptr - points to the memory position beyond which we cannot write
 // returns pointer to the first free address after writing
-int* brick::read_props(int* _lptr, int* _rptr) {
-	if (_lptr + 2 <= _rptr) {
-		 state = *_lptr;
+float* brick::read_props(float* _lptr, float* _rptr) {
+	if (_lptr + 3 <= _rptr) {
+		position.x = *_lptr;
 		_lptr += 1;
-		count = *_lptr;
+		position.y = *_lptr;
 		_lptr += 1;
+		state = (int)*_lptr;
+		_lptr += 1;
+		modelMatrix = glm::mat4(1.0);
+		modelMatrix = glm::translate(modelMatrix, position);
 		return _lptr;
 	}
 	else {

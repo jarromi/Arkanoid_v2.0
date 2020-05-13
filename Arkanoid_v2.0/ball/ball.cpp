@@ -359,7 +359,7 @@ bool ball::out_of_bounds() {
 	// _rptr - points to the memory position beyond which we cannot write
 	// returns pointer to the first free address after writing
 float* ball::comm_props(float* _lptr, float* _rptr) {
-	if (_lptr + 8 <= _rptr) {
+	if (_lptr + 7 <= _rptr) {
 		//velocity
 		*_lptr = velocity.x;
 		_lptr += 1;
@@ -378,9 +378,6 @@ float* ball::comm_props(float* _lptr, float* _rptr) {
 		//speed
 		*_lptr = speed;
 		_lptr += 1;
-		//count
-		*_lptr = (float)count;
-		_lptr += 1;
 		return _lptr;
 	}
 	else {
@@ -395,7 +392,7 @@ float* ball::comm_props(float* _lptr, float* _rptr) {
 // _rptr - points to the memory position beyond which we cannot write
 // returns pointer to the first free address after writing
 float* ball::read_props(float* _lptr, float* _rptr) {
-	if (_lptr + 8 <= _rptr) {
+	if (_lptr + 7 <= _rptr) {
 		//velocity
 		velocity.x = *_lptr;
 		_lptr += 1;
@@ -413,9 +410,6 @@ float* ball::read_props(float* _lptr, float* _rptr) {
 		_lptr += 1;
 		//speed
 		speed = *_lptr;;
-		_lptr += 1;
-		//count
-		count = (int)*_lptr;;
 		_lptr += 1;
 		return _lptr;
 	}

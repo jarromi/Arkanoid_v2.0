@@ -53,6 +53,7 @@ int main() {
 				cout << "Something went wrong with the game.\n";
 				endstat = true;
 			}
+			break;
 		default:
 			cout << "No such option.\n";
 		}

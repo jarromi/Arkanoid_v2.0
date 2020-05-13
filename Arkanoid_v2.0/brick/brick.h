@@ -69,8 +69,8 @@ public:
 	void prepare_to_draw(const Shader&);
 	void draw(const Shader &);
 	void decrease_state();
-	int* comm_props(int*, int*);
-	int* read_props(int*, int*);
+	float* comm_props(float*, float*);
+	float* read_props(float*, float*);
 };
 
 #endif

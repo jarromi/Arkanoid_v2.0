@@ -311,14 +311,12 @@ void bonus::draw(const Shader& _SO) {
 	// _rptr - points to the memory position beyond which we cannot write
 	// returns pointer to the first free address after writing
 float* bonus::comm_props(float* _lptr, float*_rptr) {
-	if (_lptr + 4 <= _rptr) {
+	if (_lptr + 3 <= _rptr) {
 		*_lptr = position.x;
 		_lptr += 1;
 		*_lptr = position.y;
 		_lptr += 1;
 		*_lptr = (float)state;
-		_lptr += 1;
-		*_lptr = (float)count;
 		_lptr += 1;
 		return _lptr;
 	}
@@ -334,14 +332,12 @@ float* bonus::comm_props(float* _lptr, float*_rptr) {
 // _rptr - points to the memory position beyond which we cannot read
 // returns pointer to the first free address after writing
 float* bonus::read_props(float* _lptr, float* _rptr) {
-	if (_lptr + 4 <= _rptr) {
+	if (_lptr + 3 <= _rptr) {
 		position.x = *_lptr;
 		_lptr += 1;
 		position.y = *_lptr;
 		_lptr += 1;
 		state = (int)*_lptr;
-		_lptr += 1;
-		count = (int)*_lptr;
 		_lptr += 1;
 		return _lptr;
 	}
