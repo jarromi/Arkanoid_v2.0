@@ -1,3 +1,7 @@
+/*
+Class: platform
+platform object is controlled by the user and allows to bounce the ball
+*/
 #ifndef _PLATFORM_
 #define _PLATFORM_
 
@@ -60,7 +64,7 @@ public:
 	platform& operator = (const platform&);
 
 	// setters and getters
-	void set_position(const float&);		// sets arbitrary position
+	void set_position(const float&);
 	void set_xscale(const float&);
 	void set_color(const glm::vec3&);
 	glm::vec2 get_position() const;

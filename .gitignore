@@ -5,3 +5,5 @@ Arkanoid_v2.0/x64/Debug/*.obj
 *.idb
 *.pdb
 x64
+test_copy
+test_copy/*

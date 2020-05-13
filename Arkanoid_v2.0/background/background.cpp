@@ -52,26 +52,29 @@ const unsigned int background::indicesCeiling[] = {
 		13, 14, 15
 };
 
-	// Textures and vertex array objects (VAO), element buffer objects (EBO) and vertex buffer object (VBO) are shared between all of the objects of type "background".
-	// Actually, only one object of type background is ever ment to be declared.
+	// Textures and vertex array objects (VAO), element buffer objects (EBO)
+	// and vertex buffer object (VBO) are shared between all of the objects of
+	// type "background".
+	// Actually, only one object of type background is ever meant to be declared.
 	// Here are ids of these objects
 unsigned int background::TextureID[] = {0,0,0};
 unsigned int background::VAO[] = { 0,0,0 };
 unsigned int background::EBO[] = { 0,0,0 };
 unsigned int background::VBO = 0;
 
-	// count keeps count of how many objects have been created. There will be an error if count>1.
+	// Count keeps count of how many objects have been created. Error if count>1.
 unsigned int background::count = 0;
 
 //------------------------------------------------------------------------------
 // Constructors and destructors
 	// Default constructor
+	// Loads level 1 background graphics 
 background::background() {
 	// keep count of number of bricks
 	++count;
 	if (count > 1) {
-		std::cout << "Only one object of type 'background' was ever ment to be created.\n";
-		throw(101);
+		logger::log("Only one object of type 'background' was ever ment to be created.\n");
+		throw "BAD_BACKGROUND";
 	}
 
 	// set the position and state
@@ -82,52 +85,52 @@ background::background() {
 	// generate OpenGL texture objects 
 	glGenTextures(3, TextureID);
 	// load textrure of the floor
-	glBindTexture(GL_TEXTURE_2D, TextureID[0]);	// bind texture // next set properties of textures
+	glBindTexture(GL_TEXTURE_2D, TextureID[0]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	unsigned char* data;
 	int width, height, nrChannels;
-	data = stbi_load("./background/floor.png", &width, &height, &nrChannels, 0);	// load texture
+	data = stbi_load("./background/floor.png", &width, &height, &nrChannels, 0);
 	if (data) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);	
 	}
 	else {
-		std::cout << "Failed to load the texture.\n";
-		throw(100);
+		logger::log("Failed to load the floor texture.\n");
+		throw "BAD_BACKGROUND";
 	}
 	stbi_image_free(data);	// release the memory of the image
 
 	// load textrure of the walls
-	glBindTexture(GL_TEXTURE_2D, TextureID[1]);	// bind texture // next set properties of textures
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// repeat the mirrored texture once fully through it
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	// repeat the texture once fully through it
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);	// downscaling of textures
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	// downscaling of textures
-	data = stbi_load("./background/walls.png", &width, &height, &nrChannels, 0);	// load texture
+	glBindTexture(GL_TEXTURE_2D, TextureID[1]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	data = stbi_load("./background/walls.png", &width, &height, &nrChannels, 0);
 	if (data) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 	else {
-		std::cout << "Failed to load the texture.\n";
-		throw(100);
+		logger::log("Failed to load the walls texture.\n");
+		throw "BAD_BACKGROUND";
 	}
 	stbi_image_free(data);	// release the memory of the image
 
 	// load textrure of the ceiling
-	glBindTexture(GL_TEXTURE_2D, TextureID[2]);	// bind texture // next set properties of textures
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// repeat the mirrored texture once fully through it
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	// repeat the texture once fully through it
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);	// downscaling of textures
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	// downscaling of textures
-	data = stbi_load("./background/ceiling.png", &width, &height, &nrChannels, 0);	// load texture
+	glBindTexture(GL_TEXTURE_2D, TextureID[2]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	data = stbi_load("./background/ceiling.png", &width, &height, &nrChannels, 0);
 	if (data) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 	else {
-		std::cout << "Failed to load the texture.\n";
-		throw(100);
+		logger::log("Failed to load the ceiling texture.\n");
+		throw "BAD_BACKGROUND";
 	}
 	stbi_image_free(data);	// release the memory of the image
 
@@ -201,16 +204,16 @@ void background::set_state(const unsigned int& _state) {
 		data = stbi_load("./background/floor.png", &width, &height, &nrChannels, 0);	// load texture
 	}
 	else {
-		std::cout << "This type of background was not yet implemented.\n";
-		throw(100);
+		logger::log("This type of background was not yet implemented.\n");
+		throw "BAD_BACKGROUND";
 	}
 	if (data) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);	// copy data to GPU
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else {
-		std::cout << "Failed to load the texture.\n";
-		throw(100);
+		logger::log("Failed to load the floor texture.\n");
+		throw "BAD_BACKGROUND";
 	}
 	stbi_image_free(data);	// release the memory of the image
 
@@ -220,16 +223,16 @@ void background::set_state(const unsigned int& _state) {
 		data = stbi_load("./background/walls.png", &width, &height, &nrChannels, 0);	// load texture
 	}
 	else {
-		std::cout << "This type of background was not yet implemented.\n";
-		throw(100);
+		logger::log("This type of background was not yet implemented.\n");
+		throw "BAD_BACKGROUND";
 	}
 	if (data) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);	// copy data to GPU
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else {
-		std::cout << "Failed to load the texture.\n";
-		throw(100);
+		logger::log("Failed to load the walls texture.\n");
+		throw "BAD_BACKGROUND";
 	}
 	stbi_image_free(data);	// release the memory of the image
 
@@ -239,15 +242,15 @@ void background::set_state(const unsigned int& _state) {
 		data = stbi_load("./background/ceiling.png", &width, &height, &nrChannels, 0);	// load texture
 	}
 	else {
-		std::cout << "This type of background was not yet implemented.\n";
-		throw(100);
+		logger::log("This type of background was not yet implemented.\n");
+		throw "BAD_BACKGROUND";
 	}
 	if (data) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);	// copy data to GPU
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 	else {
-		std::cout << "Failed to load the texture.\n";
-		throw(100);
+		logger::log("Failed to load the ceiling texture.\n");
+		throw "BAD_BACKGROUND";
 	}
 	stbi_image_free(data);	// release the memory of the image
 }

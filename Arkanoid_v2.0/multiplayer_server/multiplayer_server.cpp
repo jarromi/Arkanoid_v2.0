@@ -36,6 +36,7 @@
 #include "../ball/ball.h"
 #include "../bonus/bonus.h"
 #include "../level/level.h"
+#include "../logger/logger.h"
 
 #ifndef _COMMUNICATION_GLOBALS_
 #define _COMMUNICATION_GLOBALS_
@@ -71,7 +72,9 @@ int mutliplayer_server() {
 	_iRes = WSAStartup(MAKEWORD(2,2), &_wsaData);
 
 	if (_iRes) {
-		cout << "WSAStartup failed! " << _iRes << "\n" << endl;
+		std::stringstream ss;
+		ss << "WSAStartup failed! " << _iRes << "\n" << endl;
+		logger::log(ss);
 		return 1;
 	}
 
@@ -85,7 +88,9 @@ int mutliplayer_server() {
 	hints.ai_flags = AI_PASSIVE;
 	_iRes = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
 	if (_iRes) {
-		cout << "getaddrinfo failed! " << _iRes << endl;
+		std::stringstream ss;
+		ss << "getaddrinfo failed! " << _iRes << endl;
+		logger::log(ss);
 		WSACleanup();
 		return 1;
 	}
@@ -94,7 +99,9 @@ int mutliplayer_server() {
 	ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 	// Make sure that the socket was properly initialized
 	if (ListenSocket == INVALID_SOCKET) {
-		cout << "socket() failed! " << WSAGetLastError() << endl;
+		std::stringstream ss;
+		ss << "socket() failed! " << WSAGetLastError() << endl;
+		logger::log(ss);
 		freeaddrinfo(result);
 		WSACleanup();
 		return 1;
@@ -103,7 +110,9 @@ int mutliplayer_server() {
 	_iRes = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
 	// Make sure that the binding was successfull
 	if (_iRes) {
-		cout << "binding failed! " << WSAGetLastError() << endl;
+		std::stringstream ss;
+		ss << "binding failed! " << WSAGetLastError() << endl;
+		logger::log(ss);
 		freeaddrinfo(result);
 		closesocket(ListenSocket);
 		WSACleanup();
@@ -112,7 +121,9 @@ int mutliplayer_server() {
 	freeaddrinfo(result);
 
 	if (listen(ListenSocket, SOMAXCONN) == SOCKET_ERROR) {
-		cout << "Listening failed! " << WSAGetLastError() << endl;
+		std::stringstream ss;
+		ss << "listening failed! " << WSAGetLastError() << endl;
+		logger::log(ss);
 		closesocket(ListenSocket);
 		WSACleanup();
 		return 1;
@@ -124,7 +135,9 @@ int mutliplayer_server() {
 
 	ClientSocket = accept(ListenSocket, NULL, NULL);
 	if (ClientSocket == INVALID_SOCKET) {
-		cout << "Accepting client failed! " << WSAGetLastError() << endl;
+		std::stringstream ss;
+		ss << "accepting failed! " << WSAGetLastError() << endl;
+		logger::log(ss);
 		closesocket(ListenSocket);
 		WSACleanup();
 		return 1;
@@ -164,7 +177,7 @@ int mutliplayer_server() {
 	// Now we create a window (800x600 pixels)
 	GLFWwindow* window = glfwCreateWindow(800, 600, "Arkanoid_v2.0_Server", NULL, NULL);
 	if (window == NULL) {
-		cout << "Failed to open window.\n";
+		logger::log("Failed to open window.\n");
 		return 1;
 	}
 	// Finally we make the context of the window the main context
@@ -175,7 +188,7 @@ int mutliplayer_server() {
 	// now try to initialize GLAD
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		cout << "Failed to initialize GLAD.\n";
+		logger::log("Failed to initialize GLAD.\n");
 		return 1;
 	}
 
@@ -186,15 +199,22 @@ int mutliplayer_server() {
 
 	glEnable(GL_DEPTH_TEST);
 
-	Sleep(100);
 	cout << "Press space to begin.\n";
 	bonus dummy_bonus(glm::vec2(0.0f, -20.0f), 0);	// this is a dummy invisible bonus to keep graphics resources populated
 	level _level;
 	player _player_host;	// is the host of the game, has acces to mouse input which controls his platform
-	_level.load_level(1);
+	try {
+		_level.load_level(1);
+	}
+	catch (const char* msg) {
+		std::stringstream ss;
+		ss << "loading level failed! " << msg << endl;
+		logger::log(ss);
+		return 1;
+	}
 	bricks_count_oldS = _level.bricks.size();
 	bonuses_count_oldS = _level.bonuses.size();;
-	player _player_client;	// is a client, has no access to input, platform position controlled remotely
+	player _player_client(glm::vec3(0.0f,0.0f,1.0f));	// is a client, has no access to input, platform position controlled remotely
 	//std::thread gameplay(play_level_server, window, SOptr, levelptr, hostptr, clientptr);
 	std::thread comms(communicate_server, std::ref(ClientSocket));
 	play_level_server(window, SO, _level, _player_host, _player_client);
@@ -210,9 +230,11 @@ int mutliplayer_server() {
 
 	glfwTerminate();
 
-	_iRes = shutdown(ClientSocket, SD_SEND); // SD_SEND specifies thet the sending side is to be closed
+	_iRes = shutdown(ClientSocket, SD_SEND); // SD_SEND specifies that the sending side is to be closed
 	if (_iRes == SOCKET_ERROR) {
-		cout << "Shutdown failed! " << WSAGetLastError() << endl;
+		std::stringstream ss;
+		ss << "Shutdown failed! " << WSAGetLastError() << endl;
+		logger::log(ss);
 		closesocket(ClientSocket);
 		WSACleanup();
 		return 1;
@@ -341,11 +363,11 @@ void communicate_server(SOCKET& ClientSocket) {
 			if (!ReadyToSendS) {	// if ReadyToSend = true there's no need to communicate, if false there are new data in sendbuffer
 				_iRes = send(ClientSocket, (char*)sendbufferS, package_sizeS, 0);	// send data to client
 				if (_iRes == SOCKET_ERROR) {
-					//cout << "Send failed! " << WSAGetLastError() << endl;
+					cout << "Send failed! " << WSAGetLastError() << endl;
 				}
 				_iRes = recv(ClientSocket, (char*)recvbufferS, COMM_BUFLEN, 0);	// get data from client
 				if (_iRes == SOCKET_ERROR) {
-					//cout << "Recive failed! " << WSAGetLastError() << endl;
+					cout << "Recive failed! " << WSAGetLastError() << endl;
 				}
 				else {
 					ReadyToUpdateS = true;

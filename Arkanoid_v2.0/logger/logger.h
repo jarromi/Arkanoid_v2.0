@@ -15,7 +15,6 @@ public:
 	static void log(std::stringstream&);
 	static void log(std::string&);
 	static void log(const char*);
-	static void close_log();
 };
 
 #endif

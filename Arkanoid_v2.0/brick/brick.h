@@ -1,3 +1,8 @@
+/*
+Class: brick
+bricks are objects that the player is supposed to destroy.
+This class handles these objects.
+*/
 #ifndef _BRICK_
 #define _BRICK_
 

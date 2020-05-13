@@ -3,7 +3,7 @@
 // -------------------------------------------------
 // Initialization of static variables static variables
 
-	// Since the model of a brick is fairly simple we define here all of its vertices
+	// Since the model is fairly simple we define here all of its vertices
 const float bonus::vertices[] = {
 	//back side
 		-0.25f, -0.25f, -0.25f, 0.0f, 0.0f,
@@ -54,32 +54,33 @@ const unsigned int bonus::indices[] = {
 		21, 22, 23
 };
 
-	// We define 3 main colors of the bricks
-	// Brick color will represent its state - how many hits needed to destroy
+	// We define 3 main colors of the bonuses
+	// Bonus color will represent its state
 const glm::vec3 bonus::colors[] = {
 	glm::vec3(1.0f, 0.0f, 0.0f),
 	glm::vec3(0.0f, 1.0f, 0.0f),
 	glm::vec3(0.0f, 0.0f, 1.0f)
 };
 
-	// Textures and vertex array object (VAO), element buffer object and vertex buffer object are shared between all of the objects of type "brick"
+	// Textures and vertex array object (VAO), element buffer object (EBO)
+	// and vertex buffer object (VBO) are shared between all of the objects of type "bonus"
 	// Here are ids of these objects
 unsigned int bonus::TextureID = 0;
 unsigned int bonus::VAO = 0;
 unsigned int bonus::EBO = 0;
 unsigned int bonus::VBO = 0;
 
-	// We keep count of the number of brick objects through count
+	// We keep count of the number of bonuses objects through count
 unsigned int bonus::count = 0;
 
-	// Physical dimensions of the brick are stored in lwh
+	// Physical dimensions of the bonus are stored in lwh
 const glm::vec3 bonus::lwh = glm::vec3(0.25f, 0.25f, 0.25f);
 
 // -------------------------------------------------
 // Constructors and destructors
 	// Default constructor
 bonus::bonus() {
-	// keep count of number of bricks
+	// keep count of number of bonuses
 	++count;
 
 	// set the position and state
@@ -99,13 +100,13 @@ bonus::bonus() {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		unsigned char* data;
 		int width, height, nrChannels;
-		data = stbi_load("./brick/brick.png", &width, &height, &nrChannels, 0);	// load texture using stbi
+		data = stbi_load("./bonus/white.png", &width, &height, &nrChannels, 0);	// load texture using stbi
 		if (data) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);	// pass data to OpenGL
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		}
 		else {
-			std::cout << "Failed to load the texture.\n";
-			throw(100);
+			logger::log("Failed to load the bonus texture.\n");
+			throw "BAD_BONUS";
 		}
 		stbi_image_free(data);	// release the memory of the image
 	}
@@ -133,10 +134,10 @@ bonus::bonus() {
 	}
 }
 
-	// Positional constructor - sets a brick at a specified location with specified state
+	// Positional constructor - sets a bonus at a specified location with specified state
 	// Similar to default constructor
 bonus::bonus(const glm::vec2& _position, const unsigned int& _state) {
-	// keep count of number of bricks
+	// keep count of number of bonuses
 	++count;
 
 	// set the position and state
@@ -163,20 +164,19 @@ bonus::bonus(const glm::vec2& _position, const unsigned int& _state) {
 	if (count==1) {
 		glGenTextures(1, &TextureID);
 		glBindTexture(GL_TEXTURE_2D, TextureID);	// bind texture // next set properties of textures
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// repeat the mirrored texture once fully through it
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	// repeat the texture once fully through it
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);	// downscaling of textures
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	// downscaling of textures
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		unsigned char* data;
 		int width, height, nrChannels;
-		data = stbi_load("./brick/brick.png", &width, &height, &nrChannels, 0);	// load texture
+		data = stbi_load("./bonus/white.png", &width, &height, &nrChannels, 0);	// load texture
 		if (data) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);	// copy data to GPU
-			glGenerateMipmap(GL_TEXTURE_2D);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		}
 		else {
-			std::cout << "Failed to load the texture.\n";
-			throw(100);
+			logger::log("Failed to load the bonus texture.\n");
+			throw "BAD_BONUS";
 		}
 		stbi_image_free(data);	// release the memory of the image
 	}
@@ -207,7 +207,7 @@ bonus::bonus(const glm::vec2& _position, const unsigned int& _state) {
 	// Copy constructor
 	// Doesn't need texture loading, because if it is called another object of this type already exists
 bonus::bonus(const bonus& _lhs) {
-	// keep count of number of bricks
+	// keep count of number of bonuses
 	++count;
 
 	// set the position and state
@@ -280,7 +280,7 @@ unsigned int bonus::get_state() const {
 	return state;
 }
 
-	// Get the count of bricks
+	// Get the count of bonuses
 unsigned int bonus::get_count() {
 	return count;
 }
@@ -306,7 +306,7 @@ void bonus::draw(const Shader& _SO) {
 }
 
 	// Prepares data for communication with other users
-	// The data that should be communicated are position, state and count -- if code missed change of state for one player
+	// The data that should be communicated are position, state
 	// _lptr - points to the memory position where to write data
 	// _rptr - points to the memory position beyond which we cannot write
 	// returns pointer to the first free address after writing
@@ -321,13 +321,13 @@ float* bonus::comm_props(float* _lptr, float*_rptr) {
 		return _lptr;
 	}
 	else{
-		std::cout << "Not enough space for data.\n";
-		return _lptr;
+		logger::log("Not enough space for data.\n");
+		throw "BAD_BONUS_COMM";
 	}
 }
 
 // Prepares data for communication with other users
-// The data that should be communicated are position, state and count -- if code missed change of state for one player
+// The data that should be communicated are position, state
 // _lptr - points to the memory position where to read data from
 // _rptr - points to the memory position beyond which we cannot read
 // returns pointer to the first free address after writing
@@ -342,8 +342,8 @@ float* bonus::read_props(float* _lptr, float* _rptr) {
 		return _lptr;
 	}
 	else {
-		std::cout << "Not enough space for data.\n";
-		return _lptr;
+		logger::log("Not enough space for data.\n");
+		throw "BAD_BONUS_COMM";
 	}
 }
 

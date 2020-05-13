@@ -63,7 +63,7 @@ const float ball::rad = 0.5f;
 // Constructors, destructors and assignment operator
 	// Default constructor
 ball::ball() {
-	// keep count of number of bricks
+	// keep count of number of balls
 	++count;
 
 	// set the position and state
@@ -92,7 +92,8 @@ ball::ball() {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		}
 		else {
-			throw(100);
+			logger::log("Failed to load the ball texture.\n");
+			throw "BAD_BALL";
 		}
 		stbi_image_free(data);	// release the memory of the image
 
@@ -123,7 +124,7 @@ ball::ball() {
 
 	// Position constructor - set position, velocity and speed
 ball::ball(const glm::vec2 &_pos, const glm::vec2 &_vel, const float &_spd) {
-	// keep count of number of bricks
+	// keep count of number of balls
 	++count;
 
 	// set the position and state
@@ -168,8 +169,8 @@ ball::ball(const glm::vec2 &_pos, const glm::vec2 &_vel, const float &_spd) {
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
 		else {
-			std::cout << "Failed to load the texture.\n";
-			throw(100);
+			logger::log("Failed to load the ball texture.\n");
+			throw "BAD_BALL";
 		}
 		stbi_image_free(data);	// release the memory of the image
 
@@ -354,7 +355,7 @@ bool ball::out_of_bounds() {
 
 	// Function for network communication
 	// We need to exchange information about about:
-	// velocity, position, futurePosition, speed, and count
+	// velocity, position, futurePosition, speed
 	// _lptr - points to the memory position where to write data
 	// _rptr - points to the memory position beyond which we cannot write
 	// returns pointer to the first free address after writing
@@ -381,13 +382,13 @@ float* ball::comm_props(float* _lptr, float* _rptr) {
 		return _lptr;
 	}
 	else {
-		std::cout << "Not enough space in the given pointer.\n";
-		return _lptr;
+		logger::log("Not enough space in the given pointer.\n");
+		throw "BAD_BALL_COMM";
 	}
 }
 // Function for network communication
 // We need to exchange information about about:
-// velocity, position, futurePosition, speed, and count
+// velocity, position, futurePosition, speed
 // _lptr - points to the memory position where to write data
 // _rptr - points to the memory position beyond which we cannot write
 // returns pointer to the first free address after writing
@@ -414,7 +415,7 @@ float* ball::read_props(float* _lptr, float* _rptr) {
 		return _lptr;
 	}
 	else {
-		std::cout << "Not enough space in the given pointer.\n";
-		return _lptr;
+		logger::log("Not enough space in the given pointer.\n");
+		throw "BAD_BALL_COMM";
 	}
 }

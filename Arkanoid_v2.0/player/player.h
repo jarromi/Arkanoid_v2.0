@@ -1,3 +1,7 @@
+/*
+Class: player
+This class connects the controls of the user with a specific platform
+*/
 #ifndef _PLAYER_
 #define _PLAYER_
 

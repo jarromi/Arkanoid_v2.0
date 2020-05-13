@@ -1,3 +1,8 @@
+/*
+This file contains declaration of class level.
+This class is responsible for initializing all objects in the game,
+loading their graphics, keeping their count, and handling their interactions.
+*/
 #ifndef _LEVEL_
 #define _LEVEL_
 
@@ -30,6 +35,7 @@
 #include "../platform/platform.h"
 #include "../ball/ball.h"
 #include "../bonus/bonus.h"
+#include "../logger/logger.h"
 
 class level {
 public:

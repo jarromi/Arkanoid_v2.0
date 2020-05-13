@@ -62,7 +62,9 @@ const glm::vec3 brick::colors[] = {
 	glm::vec3(0.1718f, 0.664f, 0.1718f)
 };
 
-	// Textures and vertex array object (VAO), element buffer object and vertex buffer object are shared between all of the objects of type "brick"
+	// Textures and vertex array object (VAO), element buffer object (EBO)
+	// and vertex buffer object (VBO) are shared between all of the objects
+	// of type "brick"
 	// Here are ids of these objects
 unsigned int brick::TextureID = 0;
 unsigned int brick::VAO = 0;
@@ -77,7 +79,7 @@ const glm::vec3 brick::lwh = glm::vec3(1.0f, 0.5f, 0.5f);
 
 // -------------------------------------------------
 // Constructors and destructors
-	// Default constructor
+	// Default constructor, loads graphics only if needed
 brick::brick() {
 	// keep count of number of bricks
 	++count;
@@ -86,7 +88,7 @@ brick::brick() {
 	position = glm::vec3(0.0f, 0.0f, 0.0f);
 	state = 0;	// state: {0 -> 1 hit, 1 -> 2 hits, 2 -> 3 hits, etc.}
 	modelMatrix = glm::mat4(1.0);
-	modelMatrix = glm::translate(modelMatrix, position);	// sets the object at appropriate position visually
+	modelMatrix = glm::translate(modelMatrix, position);
 
 
 	// load textures if this is the first object
@@ -101,11 +103,11 @@ brick::brick() {
 		int width, height, nrChannels;
 		data = stbi_load("./brick/brick.png", &width, &height, &nrChannels, 0);	// load texture using stbi
 		if (data) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);	// pass data to OpenGL
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		}
 		else {
-			std::cout << "Failed to load the texture.\n";
-			throw(100);
+			logger::log("Failed to load the texture.\n");
+			throw "BAD_BRICK";
 		}
 		stbi_image_free(data);	// release the memory of the image
 	}
@@ -163,20 +165,20 @@ brick::brick(const glm::vec2& _position, const unsigned int& _state) {
 	if (count==1) {
 		glGenTextures(1, &TextureID);
 		glBindTexture(GL_TEXTURE_2D, TextureID);	// bind texture // next set properties of textures
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// repeat the mirrored texture once fully through it
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	// repeat the texture once fully through it
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);	// downscaling of textures
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	// downscaling of textures
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		unsigned char* data;
 		int width, height, nrChannels;
 		data = stbi_load("./brick/brick.png", &width, &height, &nrChannels, 0);	// load texture
 		if (data) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);	// copy data to GPU
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
 		else {
-			std::cout << "Failed to load the texture.\n";
-			throw(100);
+			logger::log("Failed to load the texture.\n");
+			throw "BAD_BRICK";
 		}
 		stbi_image_free(data);	// release the memory of the image
 	}
@@ -219,7 +221,7 @@ brick::brick(const brick& _lhs) {
 }
 
 	// Default destructor
-	// If the last object is destroyed, then free the textures, VAO, VBO, and EBO
+	// If the last object is destroyed, then free the resources
 brick::~brick() {
 	--count;
 	if (count == 0) {
@@ -311,7 +313,7 @@ void brick::decrease_state() {
 }
 
 	// Prepares data for communication with other users
-	// The data that should be communicated are state and count -- if code missed change of state for one player
+	// The data that should be communicated are position and state
 	// _lptr - points to the memory position where to write data
 	// _rptr - points to the memory position beyond which we cannot write
 	// returns pointer to the first free address after writing
@@ -326,13 +328,13 @@ float* brick::comm_props(float* _lptr, float*_rptr) {
 		return _lptr;
 	}
 	else{
-		std::cout << "Not enough space for data.\n";
-		return _lptr;
+		logger::log("Not enough space for data communication.\n");
+		throw "BAD_BRICK_COMM";
 	}
 }
 
 // Prepares data for communication with other users
-// The data that should be communicated are state and count -- if code missed change of state for one player
+// The data that should be communicated are position and state
 // _lptr - points to the memory position where to write data
 // _rptr - points to the memory position beyond which we cannot write
 // returns pointer to the first free address after writing
@@ -349,7 +351,7 @@ float* brick::read_props(float* _lptr, float* _rptr) {
 		return _lptr;
 	}
 	else {
-		std::cout << "Not enough space for data.\n";
-		return _lptr;
+		logger::log("Not enough space for data communication.\n");
+		throw "BAD_BRICK_COMM";
 	}
 }

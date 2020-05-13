@@ -17,6 +17,7 @@ using namespace std;
 int main() {
 
 	logger::open_log();
+
 	bool endstat = false;
 	int resp = 0;
 	int exitstat = 0;
@@ -60,8 +61,6 @@ int main() {
 			cout << "No such option.\n";
 		}
 	}
-
-	logger::close_log();
 	return 0;
 }
 

@@ -36,6 +36,7 @@
 #include "../ball/ball.h"
 #include "../bonus/bonus.h"
 #include "../level/level.h"
+#include "../logger/logger.h"
 
 #ifndef _COMMUNICATION_GLOBALS_
 #define _COMMUNICATION_GLOBALS_
@@ -74,7 +75,9 @@ int mutliplayer_client() {
 	_iRes = WSAStartup(MAKEWORD(2, 2), &_wsaData);
 
 	if (_iRes) {
-		cout << "WSAStartup failed! " << _iRes << "\n" << endl;
+		std::stringstream ss;
+		ss << "WSAStartup failed! " << _iRes << endl;
+		logger::log(ss);
 		return 1;
 	}
 
@@ -88,7 +91,9 @@ int mutliplayer_client() {
 
 	_iRes = getaddrinfo(_IPaddress, DEFAULT_PORT, &hints, &result);
 	if (_iRes) {
-		cout << "getaddrinfo failed! " << _iRes << endl;
+		std::stringstream ss;
+		ss << "getaddrinfo failed! " << _iRes << endl;
+		logger::log(ss);
 		WSACleanup();
 		return 1;
 	}
@@ -99,7 +104,9 @@ int mutliplayer_client() {
 		// first get the socket
 		ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
 		if (ConnectSocket == INVALID_SOCKET) {
-			cout << "socket() failed! " << WSAGetLastError() << endl;
+			std::stringstream ss;
+			ss << "socket() failed! " << WSAGetLastError() << endl;
+			logger::log(ss);
 			ptr = NULL;
 			freeaddrinfo(result);
 			WSACleanup();
@@ -110,7 +117,9 @@ int mutliplayer_client() {
 		_iRes = connect(ConnectSocket, ptr->ai_addr, ptr->ai_addrlen);
 		// if failed try next host
 		if (_iRes == SOCKET_ERROR) {
-			cout << "Connection failed! " << endl;
+			std::stringstream ss;
+			ss << "Connection failed! " << endl;
+			logger::log(ss);
 			closesocket(ConnectSocket);
 			ConnectSocket = INVALID_SOCKET;
 			continue;
@@ -123,7 +132,9 @@ int mutliplayer_client() {
 	freeaddrinfo(result);
 
 	if (ConnectSocket == INVALID_SOCKET) {
-		cout << "connection failed! " << WSAGetLastError() << endl;
+		std::stringstream ss;
+		ss << "connection failed! " << WSAGetLastError() << endl;
+		logger::log(ss);
 		WSACleanup();
 		return 1;
 	}
@@ -134,7 +145,9 @@ int mutliplayer_client() {
 
 	_iRes = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 	if (_iRes == SOCKET_ERROR) {
-		cout << "Recive failed! " << WSAGetLastError() << endl;
+		std::stringstream ss;
+		ss << "Recive failed! " << WSAGetLastError() << endl;
+		logger::log(ss);
 		closesocket(ConnectSocket);
 		WSACleanup();
 		return 1;
@@ -143,13 +156,13 @@ int mutliplayer_client() {
 	strcpy_s(recvbuf, WelcomeMessage.length()+1, WelcomeMessage.c_str());
 	_iRes = send(ConnectSocket, recvbuf, WelcomeMessage.length(), 0);
 	if (_iRes == SOCKET_ERROR) {
-		cout << "Send failed! " << WSAGetLastError() << endl;
+		std::stringstream ss;
+		ss << "Send failed! " << WSAGetLastError() << endl;
+		logger::log(ss);
 		closesocket(ConnectSocket);
 		WSACleanup();
 		return 1;
 	}
-	Sleep(1000);
-	cout << "Now I start to load\n";
 
 	//	--------------------------------------------------------------------------------------------------------------------
 // Here starts window and context initialization
@@ -160,7 +173,7 @@ int mutliplayer_client() {
 	// Now we create a window (800x600 pixels)
 	GLFWwindow* window = glfwCreateWindow(800, 600, "Arkanoid_v2.0_Client", NULL, NULL);
 	if (window == NULL) {
-		cout << "Failed to open window.\n";
+		logger::log("Failed to open window.\n");
 		return 1;
 	}
 	// Finally we make the context of the window the main context
@@ -171,7 +184,7 @@ int mutliplayer_client() {
 	// now try to initialize GLAD
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		cout << "Failed to initialize GLAD.\n";
+		logger::log("Failed to initialize GLAD.\n");
 		return 1;
 	}
 
@@ -187,10 +200,18 @@ int mutliplayer_client() {
 	bonus dummy_bonus(glm::vec2(0.0f, -20.0f), 0);	// this is a dummy invisible bonus to keep graphics resources populated
 	level _level;
 	player _player_client;	// has mouse control over platform but is not host of the game
-	_level.load_level(1);
+	try {
+		_level.load_level(1);
+	}
+	catch (const char* msg) {
+		std::stringstream ss;
+		ss << "Failed in level load " << msg;
+		logger::log(ss);
+		return 1;
+	}
 	bricks_count_newC = _level.bricks.size();
 	bonuses_count_newC = _level.bonuses.size();
-	player _player_host;	// is host of the game and remotely has control over platform, but has no access to mouse input
+	player _player_host(glm::vec3(0.0f,0.0f,1.0f));	// is host of the game and remotely has control over platform, but has no access to mouse input
 	//std::thread gameplay(play_level_client, window, std::ref(SO), std::ref(_level), std::ref(_player_host), std::ref(_player_client));
 	std::thread comms(communicate_client, std::ref(ConnectSocket));
 	play_level_client(window, SO, _level, _player_host, _player_client);
@@ -208,7 +229,9 @@ int mutliplayer_client() {
 
 	_iRes = shutdown(ConnectSocket, SD_SEND);
 	if (_iRes == SOCKET_ERROR) {
-		cout << "Shutdown failed! " << WSAGetLastError() << endl;
+		std::stringstream ss;
+		ss << "Shutdown failed! " << WSAGetLastError() << endl;
+		logger::log(ss);
 		closesocket(ConnectSocket);
 		WSACleanup();
 		return 1;
@@ -294,42 +317,34 @@ void play_level_client(GLFWwindow* window, Shader& _SO, level& _level, player& _
 					if (i >= _level.balls.size()) { // add neew balls if not enough
 						ball new_ball;
 						_level.balls.push_back(new_ball);
-						std::cout << "Adding a ball\t" << _level.balls.size() << std::endl;
 					}
 					_lptr = _level.balls[i].read_props(_lptr, _rptr);
 				}
 				while (host_ball_count < _level.balls.size()) { // erase balls over the limit
 					_level.balls.erase(_level.balls.begin() + (_level.balls.size() - 1));
-					std::cout << "Removing a ball\t" << _level.balls.size() << std::endl;
 				}
 				if (bricks_count_newC != _level.bricks.size()) {
-					std::cout << "Here I update count of bricks to " << bricks_count_newC << "\n";
 					for (int i = 0; i < bricks_count_newC; ++i) {
 						if (i >= _level.bricks.size()) {
 							brick new_brick;
 							_level.bricks.push_back(new_brick);
-							std::cout << "Adding a brick\t" << _level.bricks.size() << std::endl;
 						}
 						_lptr = _level.bricks[i].read_props(_lptr, _rptr);
 					}
 					while (bricks_count_newC < _level.bricks.size()) {
 						_level.bricks.erase(_level.bricks.begin() + (_level.bricks.size() - 1));
-						std::cout << "Removing a brick\t" << _level.bricks.size() << std::endl;
 					}
 				}
 				if (bonuses_count_newC != _level.bonuses.size()) {
-					std::cout << "Here I update count of bonuses to " << bonuses_count_newC << "\n";
 					for (int i = 0; i < bonuses_count_newC; ++i) {
 						if (i >= _level.bonuses.size()) {
 							bonus new_bonus;
 							_level.bonuses.push_back(new_bonus);
-							std::cout << "Adding a bonus\t" << _level.bonuses.size() << std::endl;
 						}
 						_lptr = _level.bonuses[i].read_props(_lptr, _rptr);
 					}
 					while (bonuses_count_newC < _level.bonuses.size()) {
 						_level.bonuses.erase(_level.bonuses.begin() + (_level.bonuses.size() - 1));
-						std::cout << "Removing a bonus\t" << _level.bonuses.size() << std::endl;
 					}
 				}
 				ReadyToUpdateC = false;	// tell the communication thread that it needs to send data

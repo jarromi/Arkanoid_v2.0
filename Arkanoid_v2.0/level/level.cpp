@@ -1,3 +1,6 @@
+/*
+This file contains 
+*/
 #include "level.h"
 
 // Default constructor
@@ -17,15 +20,17 @@ level::~level() {
 void level::load_level(const unsigned int& _grade) {
 	grade = _grade;
 	if (grade != 1 && grade != 2) {
-		std::cout << "Only levels 1 and 2 have been implemented. Sorry.\n";
-		throw 103;
+		logger::log("Only levels 1 and 2 have been implemented. Sorry.\n");
+		throw "BAD_LEVEL";
 	}
 	// try to load background
 	try {
 		_background.set_state(grade);
 	}
-	catch (int i) {
-		std::cout << "Error: " << i << "Falied background loading.\n";
+	catch (const char *msg) {
+		std::stringstream ss;
+		ss << "Error: " << msg << "Falied background loading.\n";
+		logger::log(ss);
 	}
 
 	// try to load positions and states of bricks
@@ -43,12 +48,14 @@ void level::load_level(const unsigned int& _grade) {
 		}
 		inputF.close();
 		if (brick::get_count() != bricks.size()) {
-			std::cout << "Something wrong with brick count.\n";
-			exit(EXIT_FAILURE);
+			logger::log("Something wrong with brick count in level::load_level.\n");
+			throw "BAD_BRICK_LOAD";
 		}
 	}
-	catch (std::fstream::failure e) {
-		std::cout << "ERROR while reading level1.dat file: " << std::endl;
+	catch (const char *msg) {
+		std::stringstream ss;
+		ss << "ERROR while reading level1.dat file" << msg << "\n";
+		logger::log(ss);
 		return;
 	}
 
@@ -57,8 +64,10 @@ void level::load_level(const unsigned int& _grade) {
 		ball tempBall(glm::vec2(0.0f, -8.25f), glm::vec2(0.6f, 0.8f), 0.0f);
 		balls.push_back(tempBall);
 	}
-	catch (std::fstream::failure e) {
-		std::cout << "ERROR while initializing ball: " << std::endl;
+	catch (const char *msg) {
+		std::stringstream ss;
+		ss << "ERROR while initializing ball: " << msg << std::endl;
+		logger::log(ss);
 		return;
 	}
 }
@@ -75,14 +84,14 @@ void level::level_process_input(GLFWwindow* window) {
 	}
 }
 
-// Handles brick objects: check for collisions with balls, removes objects, draws, etc.
+// Handles brick objects: check for collisions with balls, removes objects, draws, generates bonuses
 void level::handle_bricks(const Shader &_SO) {
 	int idBR = 0, idBL = 0;	// indices for bricks and balls vectors
 	if(idBR <bricks.size()) bricks[0].prepare_to_draw(_SO);
-	for (idBL = 0; idBL < balls.size();++idBL) {
+	for (idBL = 0; idBL < balls.size();++idBL) {	// for each ball
 		idBR = 0;
-		while (idBR < bricks.size()) {
-			if (check_bounce_brick(idBR, idBL)) {
+		while (idBR < bricks.size()) {				// for each brick
+			if (check_bounce_brick(idBR, idBL)) {	// check collisions
 				score += 10 * grade;
 				if (bricks[idBR].get_state() == 0) {
 					if (bricks.size() % 10 == 9) {
@@ -258,6 +267,7 @@ bool level::check_bonus(const int &idBON, platform& pltf) {
 	return false;
 }
 
+// Check for losing condition
 void level::check_lose() {
 	if (balls.size() == 1 && balls[0].out_of_bounds() ) {
 		end_level = true;
@@ -266,6 +276,7 @@ void level::check_lose() {
 	}
 }
 
+// Remove all objects if any still present
 void level::clean_level() {
 	bricks.clear();
 	bonuses.clear();

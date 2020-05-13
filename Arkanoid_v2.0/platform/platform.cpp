@@ -3,7 +3,7 @@
 // -------------------------------------------------
 // Initialization of static variables static variables
 
-	// Since the model of a brick is fairly simple we define here all of its vertices
+	// Since the model is fairly simple we define here all of its vertices
 const float platform::vertices[] = {
 	//back side
 		-2.0f, -0.25f, -0.5f, 0.0f, 0.0f,
@@ -63,7 +63,7 @@ unsigned int platform::count = 0;
 // Constructors, destructors and assignment operator
 	// Default constructor
 platform::platform() {
-	// keep count of number of bricks
+	// keep count of number of platforms
 	++count;
 
 	// initialize the position, size etc.
@@ -90,12 +90,12 @@ platform::platform() {
 		int width, height, nrChannels;
 		data = stbi_load("./platform/platform.png", &width, &height, &nrChannels, 0);	// load texture
 		if (data) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);	// copy data to GPU
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
 		else {
-			std::cout << "Failed to load the texture.\n";
-			throw(100);
+			logger::log("Failed to load the platform texture.\n");
+			throw "BAD_PLATFORM";
 		}
 		stbi_image_free(data);	// release the memory of the image
 
@@ -125,7 +125,7 @@ platform::platform() {
 
 	// Positional constructor
 platform::platform(const float &_xPos) {
-	// keep count of number of bricks
+	// keep count of number of platforms
 	++count;
 	// set the position and state
 	float xPos = _xPos;
@@ -146,20 +146,20 @@ platform::platform(const float &_xPos) {
 	if (count == 1) {
 		glGenTextures(1, &TextureID);
 		glBindTexture(GL_TEXTURE_2D, TextureID);	// bind texture // next set properties of textures
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// repeat the mirrored texture once fully through it
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	// repeat the texture once fully through it
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);	// downscaling of textures
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	// downscaling of textures
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		unsigned char* data;
 		int width, height, nrChannels;
 		data = stbi_load("./platform/platform.png", &width, &height, &nrChannels, 0);	// load texture
 		if (data) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);	// copy data to GPU
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
 		else {
-			std::cout << "Failed to load the texture.\n";
-			throw(100);
+			logger::log("Failed to load the platform texture.\n");
+			throw "BAD_PLATFORM";
 		}
 		stbi_image_free(data);	// release the memory of the image
 
@@ -188,7 +188,7 @@ platform::platform(const float &_xPos) {
 
 //positional and color constructor
 platform::platform(const float& _xPos, const glm::vec3 &_color) {
-	// keep count of number of bricks
+	// keep count of number of platforms
 	++count;
 	// set the position and state
 	float xPos = _xPos;
@@ -209,20 +209,20 @@ platform::platform(const float& _xPos, const glm::vec3 &_color) {
 	if (count == 1) {
 		glGenTextures(1, &TextureID);
 		glBindTexture(GL_TEXTURE_2D, TextureID);	// bind texture // next set properties of textures
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// repeat the mirrored texture once fully through it
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	// repeat the texture once fully through it
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);	// downscaling of textures
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	// downscaling of textures
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		unsigned char* data;
 		int width, height, nrChannels;
 		data = stbi_load("./platform/platform.png", &width, &height, &nrChannels, 0);	// load texture
 		if (data) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);	// copy data to GPU
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
 		else {
-			std::cout << "Failed to load the texture.\n";
-			throw(100);
+			logger::log("Failed to load the platform texture.\n");
+			throw "BAD_PLATFORM";
 		}
 		stbi_image_free(data);	// release the memory of the image
 
@@ -251,7 +251,7 @@ platform::platform(const float& _xPos, const glm::vec3 &_color) {
 
 //copy constructor
 platform::platform(const platform& _lhs) {
-	// keep count of number of bricks
+	// keep count of number of platforms
 	++count;
 
 	// set the position and state
@@ -399,7 +399,7 @@ void platform::draw(const Shader& _SO) {
 
 // Function for network communication
 // We need to exchange information about about:
-// velocity, position, futurePosition, speed, and count
+// position, xscale, direction, TimeModif and DeltaModif
 // _lptr - points to the memory position where to write data
 // _rptr - points to the memory position beyond which we cannot write
 // returns pointer to the first free address after writing
@@ -424,14 +424,14 @@ float* platform::comm_props(float* _lptr, float* _rptr) {
 		return _lptr;
 	}
 	else {
-		std::cout << "Not enough space in the given pointer.\n";
-		return _lptr;
+		logger::log("Not enough space in the given pointer.\n");
+		throw "BAD_PLATFORM_COMM";
 	}
 }
 
 // Function for network communication
 // We need to exchange information about about:
-// position, xscale, etc.
+// position, xscale, direction, TimeModif and DeltaModif
 // _lptr - points to the memory position where to read data from
 // _rptr - points to the memory position beyond which we cannot read
 // returns pointer to the first free address after writing
@@ -456,7 +456,7 @@ float* platform::read_props(float* _lptr, float* _rptr) {
 		return _lptr;
 	}
 	else {
-		std::cout << "Not enough space in the given pointer.\n";
-		return _lptr;
+		logger::log("Not enough space in the given pointer.\n");
+		throw "BAD_PLATFORM_COMM";
 	}
 }

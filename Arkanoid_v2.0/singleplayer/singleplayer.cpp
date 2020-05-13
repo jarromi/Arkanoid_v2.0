@@ -1,3 +1,13 @@
+/*
+Singleplayer.cpp
+File includes the definition of the singleplayer function.
+This function is responsible for the singleplayer gameplay:
+1) Creating window
+2) Loading graphics
+3) Calling functions for handling input, movement of objects, etc.
+4) Closing everything and resetting after the end of the game.
+*/
+
 #include <iostream>
 
 #ifndef _GLAD_
@@ -30,6 +40,7 @@
 #include "../ball/ball.h"
 #include "../bonus/bonus.h"
 #include "../level/level.h"
+#include "../logger/logger.h"
 
 #include "singleplayer.h"
 
@@ -48,9 +59,9 @@ int singleplayer() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);	// OpenGL version *.3
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // OpenGL use core profile
 	// Now we create a window (800x600 pixels)
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Arkanoid_v0.1", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(800, 600, "Arkanoid_v2.0", NULL, NULL);
 	if (window == NULL) {
-		cout << "Failed to open window.\n";
+		logger::log("Failed to open window.\n");
 		return 1;
 	}
 	// Finally we make the context of the window the main context
@@ -61,7 +72,7 @@ int singleplayer() {
 	// now try to initialize GLAD
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		cout << "Failed to initialize GLAD.\n";
+		logger::log("Failed to initialize GLAD.\n");
 		return 1;
 	}
 
@@ -76,9 +87,18 @@ int singleplayer() {
 	bonus dummy_bonus(glm::vec2(0.0f, -20.0f), 0);
 	level _level;
 	player _player;
-	_level.load_level(1);
+	try {
+		_level.load_level(1);
+	}
+	catch (const char* msg) {
+		std::stringstream ss;
+		ss << "Failed in level load " << msg;
+		logger::log(ss);
+		return 1;
+	}
 	play_level_single(window, SO, _level, _player);
-	cout << "                                        \r" << "You scored: " << _level.score << endl;
+	cout << "\r\nYou scored: " << _level.score << endl;
+	_player.resetMouseAction();
 	_level.clean_level();
 
 

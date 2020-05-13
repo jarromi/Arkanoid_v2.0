@@ -1,5 +1,10 @@
 #include "shader.h"
 
+/*
+The constructor with paths to the vertex and fragment shaders.
+It reads the shader programs from files, compiles the vertex programs,
+initializes shaders and activates them.
+*/
 Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	std::fstream VSF, FSF;
 	char line[256];
@@ -16,7 +21,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 		VSF.close();
 	}
 	catch (std::fstream::failure e) {
-		std::cout << "ERROR while reading vertex shader file: " << std::endl;
+		logger::log("ERROR while reading vertex shader file.\n");
 	}
 	char* charSourceCode;
 	charSourceCode = new char[sourceCode.size() + 1];
@@ -34,10 +39,12 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
 	if (!success) {
 		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR: vertex shader compilation failed: " << infoLog << std::endl;
+		std::stringstream ss;
+		ss << "ERROR: vertex shader compilation failed: " << infoLog << std::endl;
+		logger::log(ss);
 	}
 
-	//open, read file with code for fragment shader, create and compile, close file
+	// Do the same as above for the fragment shader
 	sourceCode = "";
 	try {
 		FSF.open(fragmentPath, std::fstream::in);
@@ -48,7 +55,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 		FSF.close();
 	}
 	catch (std::fstream::failure e) {
-		std::cout << "ERROR while reading fragment shader file: " << std::endl;
+		logger::log("ERROR while reading fragment shader file\n.");
 	}
 	charSourceCode = new char[sourceCode.size() + 1];
 	strcpy_s(charSourceCode, sourceCode.size() + 1, sourceCode.c_str());
@@ -63,20 +70,25 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
 	if (!success) {
 		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cout << "ERROR: fragment shader compilation failed: " << infoLog << std::endl;
+		std::stringstream ss;
+		ss << "ERROR: fragment shader compilation failed: " << infoLog << std::endl;
+		logger::log(ss);
 	}
 
-	ID = glCreateProgram();	// create program and assign id
+	// create program and assign id
+	ID = glCreateProgram();	
 
-	glAttachShader(ID, vertexShader);	//attach vertex shader
-	glAttachShader(ID, fragmentShader);	//attach fragment shader
-			// we only attach those which we modified/defined
-	glLinkProgram(ID);	// link all of the shaders
+	glAttachShader(ID, vertexShader);
+	glAttachShader(ID, fragmentShader);
+	glLinkProgram(ID);
 
+	// Link shaders
 	glGetProgramiv(ID, GL_LINK_STATUS, &success);
 	if (!success) {
 		glGetShaderInfoLog(ID, 512, NULL, infoLog);
-		std::cout << "ERROR: shader program linking failed: " << infoLog << std::endl;
+		std::stringstream ss;
+		ss << "ERROR: shader program linking failed: " << infoLog << std::endl;
+		logger::log(ss);
 	}
 
 	glDeleteShader(vertexShader);	// the shader sourcecode objects we defined are no longer needed, linking was already done
@@ -84,10 +96,12 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 
 }
 
+// Method for using shaders in progaram
 void Shader::use() {
 	glUseProgram(ID);
 }
 
+// Additional methods for seting unifroms in shaders
 void Shader::setBool(const std::string& name, bool value) const
 {
 	glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);

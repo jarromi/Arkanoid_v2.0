@@ -1,3 +1,8 @@
+/*
+Class: ball
+Object of this class represents ball that moves through the space and bounces
+off the sides, platforms and bricks.
+*/
 #ifndef _BALL_
 #define _BALL_
 

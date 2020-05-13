@@ -10,21 +10,24 @@ void logger::open_log() {
 	time(&timer);
 	char buffer[256];
 	ctime_s(buffer, 256, &timer);
-	log(buffer);
+	log_file << buffer << "\n";
+	log_file.close();
 }
 
 void logger::log(std::stringstream& ss) {
+	log_file.open("logger/run_log.txt", std::fstream::app);
 	log_file << ss.str();
+	log_file.close();
 }
 
 void logger::log(std::string& s) {
+	log_file.open("logger/run_log.txt", std::fstream::app);
 	log_file << s;
+	log_file.close();
 }
 
 void logger::log(const char *cs) {
+	log_file.open("logger/run_log.txt", std::fstream::app);
 	log_file << cs;
-}
-
-void logger::close_log() {
 	log_file.close();
 }

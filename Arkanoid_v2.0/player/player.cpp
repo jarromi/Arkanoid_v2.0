@@ -34,6 +34,7 @@ void player::resetMouseAction() {
 	firstMouseAction = true;
 }
 
+// Mouse control
 void player::mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
 	if (currentOwner != NULL) {

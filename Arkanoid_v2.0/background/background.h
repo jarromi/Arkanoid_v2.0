@@ -1,3 +1,6 @@
+/*
+This class takes care of the background loading and displaying
+*/
 #ifndef _BACKGROUND_
 #define _BACKGROUND_
 
@@ -25,13 +28,14 @@
 #endif
 
 #include "../shader/shader.h"
+#include "../logger/logger.h"
 
 class background {
-	static const float vertices[];			// vertices of the model
+	static const float vertices[];					// vertices of the model
 	static const unsigned int indicesFloor[];		// indices of the model
 	static const unsigned int indicesCeiling[];		// indices of the model
 	static const unsigned int indicesWalls[];		// indices of the model
-	static unsigned int TextureID[];			// textures of the model
+	static unsigned int TextureID[];				// textures of the model
 	static unsigned int count;
 	static unsigned int VAO[];
 	static unsigned int EBO[];
@@ -40,11 +44,11 @@ class background {
 public:
 	unsigned int state;
 
-	//constructor, destructor, assignment
+	//constructor, destructor
 	background();
 	~background();
 
-	// functionalities
+	// methods
 	void set_state(const unsigned int&);
 	void draw(const Shader&);
 };

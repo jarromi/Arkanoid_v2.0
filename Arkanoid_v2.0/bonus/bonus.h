@@ -1,3 +1,9 @@
+/*
+Class: bonus
+This object represents bonuses.
+They are generated after hitting certain bricks.
+Upon contact with platform activate bonus.
+*/
 #ifndef _BONUS_
 #define _BONUS_
 
