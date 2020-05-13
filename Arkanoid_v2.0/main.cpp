@@ -9,16 +9,18 @@
 #include "singleplayer/singleplayer.h"
 #include "multiplayer_server/multiplayer_server.h"
 #include "multiplayer_client/multiplayer_client.h"
+#include "logger/logger.h"
 
 using namespace std;
 
 
 int main() {
 
+	logger::open_log();
 	bool endstat = false;
 	int resp = 0;
 	int exitstat = 0;
-	cout << "Welcome to the Arkanoid v0.1 game.\n";
+	cout << "Welcome to the Arkanoid v2.0 game.\n";
 
 	while (!endstat) {
 		cout << "\nPlease specify which version would you like to run:\n";
@@ -36,21 +38,21 @@ int main() {
 		case 1:
 			exitstat = singleplayer();
 			if (exitstat != 0) {
-				cout << "Something went wrong with the game.\n";
+				logger::log("Something went wrong with the game: Singleplayer.\n");
 				endstat = true;
 			}
 			break;
 		case 2:
 			exitstat = mutliplayer_server();
 			if (exitstat != 0) {
-				cout << "Something went wrong with the game.\n";
+				logger::log("Something went wrong with the game: M: Server.\n");
 				endstat = true;
 			}
 			break;
 		case 3:
 			exitstat = mutliplayer_client();
 			if (exitstat != 0) {
-				cout << "Something went wrong with the game.\n";
+				logger::log("Something went wrong with the game: M: Client.\n");
 				endstat = true;
 			}
 			break;
@@ -59,6 +61,7 @@ int main() {
 		}
 	}
 
+	logger::close_log();
 	return 0;
 }
 

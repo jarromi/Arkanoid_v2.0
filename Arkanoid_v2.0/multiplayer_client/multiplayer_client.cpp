@@ -140,7 +140,7 @@ int mutliplayer_client() {
 		return 1;
 	}
 	cout << recvbuf << endl;
-	strcpy_s(recvbuf, DEFAULT_BUFLEN, WelcomeMessage.c_str());
+	strcpy_s(recvbuf, WelcomeMessage.length()+1, WelcomeMessage.c_str());
 	_iRes = send(ConnectSocket, recvbuf, WelcomeMessage.length(), 0);
 	if (_iRes == SOCKET_ERROR) {
 		cout << "Send failed! " << WSAGetLastError() << endl;

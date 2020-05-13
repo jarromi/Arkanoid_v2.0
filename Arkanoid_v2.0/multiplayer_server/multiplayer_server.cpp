@@ -144,6 +144,7 @@ int mutliplayer_server() {
 		WSACleanup();
 		return 1;
 	}
+	memset(recvbuf, 0, DEFAULT_BUFLEN);
 	_iRes = recv(ClientSocket, recvbuf, recvbuflen, 0);
 	if (_iRes == SOCKET_ERROR) {
 		cout << "Recive failed! " << WSAGetLastError() << endl;
