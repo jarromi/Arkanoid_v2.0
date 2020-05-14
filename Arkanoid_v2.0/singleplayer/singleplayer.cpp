@@ -131,8 +131,8 @@ void play_level_single(GLFWwindow *window, Shader &_SO, level &_level, player &_
 	unsigned int tProj = glGetUniformLocation(_SO.ID, "proj");
 	glUniformMatrix4fv(tProj, 1, GL_FALSE, glm::value_ptr(proj));
 
+
 	// start rendering loop
-	int i = 0;
 	while (!_level.end_level) {
 		_level.level_process_input(window);
 
@@ -144,6 +144,7 @@ void play_level_single(GLFWwindow *window, Shader &_SO, level &_level, player &_
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);	// set the default color to which the screen is reset
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// clear the screen
 
+		_level.message.draw(_SO);
 		_level._background.draw(_SO);
 		_level.handle_bricks(_SO);
 		_level.handle_bonuses(_SO, _player.plat, deltaTime);

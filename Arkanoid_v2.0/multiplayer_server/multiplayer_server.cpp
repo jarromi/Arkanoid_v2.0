@@ -280,6 +280,7 @@ void play_level_server(GLFWwindow *window, Shader &_SO, level &_level, player& _
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);	// set the default color to which the screen is reset
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// clear the screen
 
+		_level.message.draw(_SO);
 		_level._background.draw(_SO);
 
 		_level.handle_bricks(_SO);

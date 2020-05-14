@@ -27,6 +27,7 @@
     <ClCompile Include="level\level.cpp" />
     <ClCompile Include="logger\logger.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="msg_box\msg_box.cpp" />
     <ClCompile Include="multiplayer_client\multiplayer_client.cpp" />
     <ClCompile Include="multiplayer_server\multiplayer_server.cpp" />
     <ClCompile Include="platform\platform.cpp" />
@@ -41,6 +42,7 @@
     <ClInclude Include="brick\brick.h" />
     <ClInclude Include="level\level.h" />
     <ClInclude Include="logger\logger.h" />
+    <ClInclude Include="msg_box\msg_box.h" />
     <ClInclude Include="multiplayer_client\multiplayer_client.h" />
     <ClInclude Include="multiplayer_server\multiplayer_server.h" />
     <ClInclude Include="platform\platform.h" />
@@ -56,6 +58,7 @@
     <Image Include="ball\white.png" />
     <Image Include="bonus\white.png" />
     <Image Include="brick\brick.png" />
+    <Image Include="msg_box\PressSPACE.png" />
     <Image Include="platform\platform.png" />
   </ItemGroup>
   <ItemGroup>

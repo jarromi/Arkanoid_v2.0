@@ -57,6 +57,9 @@
     <ClCompile Include="logger\logger.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
+    <ClCompile Include="msg_box\msg_box.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="background\background.h">
@@ -98,6 +101,9 @@
     <ClInclude Include="logger\logger.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
+    <ClInclude Include="msg_box\msg_box.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="background\ceiling.png">
@@ -119,6 +125,9 @@
       <Filter>Pliki zasobów</Filter>
     </Image>
     <Image Include="bonus\white.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
+    <Image Include="msg_box\PressSPACE.png">
       <Filter>Pliki zasobów</Filter>
     </Image>
   </ItemGroup>

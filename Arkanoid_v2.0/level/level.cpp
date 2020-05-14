@@ -19,6 +19,9 @@ level::~level() {
 // Method for loading the level (bricks, ball, background, ...)
 void level::load_level(const unsigned int& _grade) {
 	grade = _grade;
+
+	message.set_message_on();
+
 	if (grade != 1 && grade != 2) {
 		logger::log("Only levels 1 and 2 have been implemented. Sorry.\n");
 		throw "BAD_LEVEL";
@@ -81,6 +84,7 @@ void level::level_process_input(GLFWwindow* window) {
 	}
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) { // if the escape key was pressed then
 		if(balls.size()>0) balls[0].set_speed(10.0f * grade);
+		message.set_message_off();
 	}
 }
 

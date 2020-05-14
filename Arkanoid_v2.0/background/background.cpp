@@ -209,7 +209,6 @@ void background::set_state(const unsigned int& _state) {
 	}
 	if (data) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else {
 		logger::log("Failed to load the floor texture.\n");
@@ -228,7 +227,6 @@ void background::set_state(const unsigned int& _state) {
 	}
 	if (data) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else {
 		logger::log("Failed to load the walls texture.\n");

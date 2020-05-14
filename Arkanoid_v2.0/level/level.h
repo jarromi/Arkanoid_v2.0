@@ -36,6 +36,7 @@ loading their graphics, keeping their count, and handling their interactions.
 #include "../ball/ball.h"
 #include "../bonus/bonus.h"
 #include "../logger/logger.h"
+#include "../msg_box/msg_box.h"
 
 class level {
 public:
@@ -43,6 +44,7 @@ public:
 	background _background;
 	std::vector<ball> balls;
 	std::vector<bonus> bonuses;
+	msg_box message;
 	unsigned int grade;
 	bool end_level;
 	int score;
