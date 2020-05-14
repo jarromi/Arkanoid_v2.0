@@ -110,12 +110,15 @@ void msg_box::set_state(const unsigned int& _state) {
 	if (state == 1) {
 		data = stbi_load("./msg_box/PressSPACE.png", &width, &height, &nrChannels, 0);	// load texture
 	}
+	if (state == 2) {
+		data = stbi_load("./msg_box/Wait.png", &width, &height, &nrChannels, 0);	// load texture
+	}
 	else {
 		logger::log("This type of message was not yet implemented.\n");
 		throw "BAD_MSG_BOX";
 	}
 	if (data) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 	else {
 		logger::log("Failed to load the message texture.\n");

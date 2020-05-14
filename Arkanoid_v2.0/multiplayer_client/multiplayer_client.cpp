@@ -64,6 +64,7 @@ void play_level_client(GLFWwindow*, Shader&, level&, player&, player&);
 void communicate_client(SOCKET&);
 
 int mutliplayer_client() {
+	logger::log("    Multiplayer client: initializing connection socket.\n");
 
 	char _IPaddress[32];
 	cout << "Please give the IP address of the server.\n";
@@ -113,6 +114,7 @@ int mutliplayer_client() {
 			return 1;
 		}
 
+		logger::log("    Multiplayer client: trying to connect.\n");
 		// now try to connect
 		_iRes = connect(ConnectSocket, ptr->ai_addr, ptr->ai_addrlen);
 		// if failed try next host
@@ -139,6 +141,7 @@ int mutliplayer_client() {
 		return 1;
 	}
 
+	logger::log("    Multiplayer client: greeting.\n");
 	string WelcomeMessage = "Hello, this is client, I want to play Arkanoid.";
 	char recvbuf[DEFAULT_BUFLEN] = {}; // network communication buffer
 	int recvbuflen = DEFAULT_BUFLEN;
@@ -164,6 +167,7 @@ int mutliplayer_client() {
 		return 1;
 	}
 
+	logger::log("    Multiplayer client: initializing window and graphics.\n");
 	//	--------------------------------------------------------------------------------------------------------------------
 // Here starts window and context initialization
 	glfwInit(); // Initializes GLFW
@@ -188,6 +192,7 @@ int mutliplayer_client() {
 		return 1;
 	}
 
+	logger::log("    Multiplayer client: initializing shaders.\n");
 	//	--------------------------------------------------------------------------------------------------------------------
 	// data communication channel is set now take care of shaders with a special object
 	Shader SO("./shader/vertexShader.vert", "./shader/fragmentShader.frag");
@@ -196,7 +201,7 @@ int mutliplayer_client() {
 	glEnable(GL_DEPTH_TEST);
 
 
-	cout << "Press space to begin.\n";
+	logger::log("    Multiplayer client: loading level.\n");
 	bonus dummy_bonus(glm::vec2(0.0f, -20.0f), 0);	// this is a dummy invisible bonus to keep graphics resources populated
 	level _level;
 	player _player_client;	// has mouse control over platform but is not host of the game
@@ -211,14 +216,15 @@ int mutliplayer_client() {
 	}
 	bricks_count_newC = _level.bricks.size();
 	bonuses_count_newC = _level.bonuses.size();
-	player _player_host(glm::vec3(0.0f,0.0f,1.0f));	// is host of the game and remotely has control over platform, but has no access to mouse input
-	//std::thread gameplay(play_level_client, window, std::ref(SO), std::ref(_level), std::ref(_player_host), std::ref(_player_client));
+	player _player_host(glm::vec3(0.0f,0.0f,1.0f));
+	logger::log("    Multiplayer client: initializing gameplay and communication.\n");
 	std::thread comms(communicate_client, std::ref(ConnectSocket));
 	play_level_client(window, SO, _level, _player_host, _player_client);
 
 	//gameplay.join();
 	comms.join();
 
+	logger::log("    Multiplayer client: resetting globals and closing window.\n");
 	//reset globals
 	ReadyToSendC = true;
 	ReadyToUpdateC = false;
@@ -227,6 +233,7 @@ int mutliplayer_client() {
 
 	glfwTerminate();
 
+	logger::log("    Multiplayer client: closing socket.\n");
 	_iRes = shutdown(ConnectSocket, SD_SEND);
 	if (_iRes == SOCKET_ERROR) {
 		std::stringstream ss;
@@ -240,7 +247,7 @@ int mutliplayer_client() {
 	closesocket(ConnectSocket);
 	WSACleanup();
 
-
+	logger::log("    Multiplayer client: exit.\n");
 	return 0;
 }
 
@@ -253,6 +260,7 @@ void framebuffer_size_callback_client(GLFWwindow*, int width, int height) { // a
 	// player1 is host
 	// player2 is here mouse controlled
 void play_level_client(GLFWwindow* window, Shader& _SO, level& _level, player& _player1, player& _player2) {
+	logger::log("        Multiplayer client play: initializing callbacks and perspective.\n");
 	if (_level.bricks.size() > 0) _level.end_level = false;
 	glfwSetCursorPosCallback(window, player::mouse_callback);
 	float deltaTime = 0.0f;
@@ -268,7 +276,10 @@ void play_level_client(GLFWwindow* window, Shader& _SO, level& _level, player& _
 	unsigned int tProj = glGetUniformLocation(_SO.ID, "proj");
 	glUniformMatrix4fv(tProj, 1, GL_FALSE, glm::value_ptr(proj));
 
+	_level.message.set_state(2);
+
 	// Here starts gamplay/rendering loop
+	logger::log("        Multiplayer client play: start the rendering loop.\n");
 	while (!_level.end_level) {
 		_level.level_process_input(window);
 
@@ -279,6 +290,7 @@ void play_level_client(GLFWwindow* window, Shader& _SO, level& _level, player& _
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);	// set the default color to which the screen is reset
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// clear the screen
 
+		_level.message.draw(_SO);
 		_level._background.draw(_SO);
 
 		_level.handle_bricks(_SO);
@@ -361,10 +373,12 @@ void play_level_client(GLFWwindow* window, Shader& _SO, level& _level, player& _
 		}
 
 	}
+	logger::log("        Multiplayer client play: reset globals.\n");
 	ShouldEndC = true;
 	ReadyToSendC = true;
 	ReadyToUpdateC = false;
 	CommunicationControlC = false;
+	logger::log("        Multiplayer server play: exit.\n");
 }
 
 // This is a function run in thread comms that is responsible for server-client communication

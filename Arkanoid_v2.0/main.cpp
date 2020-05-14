@@ -24,6 +24,7 @@ int main() {
 	cout << "Welcome to the Arkanoid v2.0 game.\n";
 
 	while (!endstat) {
+		logger::log("In main - choice.\n");
 		cout << "\nPlease specify which version would you like to run:\n";
 		cout << " 0 - Exit\n";
 		cout << " 1 - Single Player\n";
@@ -33,10 +34,12 @@ int main() {
 		cin >> resp;
 		switch (resp) {
 		case 0:
+			logger::log("Main: exit choice.\n");
 			cout << "Good bye then!\n";
 			endstat = true;
 			break;
 		case 1:
+			logger::log("Main: Singleplayer.\n");
 			exitstat = singleplayer();
 			if (exitstat != 0) {
 				logger::log("Something went wrong with the game: Singleplayer.\n");
@@ -44,6 +47,7 @@ int main() {
 			}
 			break;
 		case 2:
+			logger::log("Main: Multiplayer server.\n");
 			exitstat = mutliplayer_server();
 			if (exitstat != 0) {
 				logger::log("Something went wrong with the game: M: Server.\n");
@@ -51,6 +55,7 @@ int main() {
 			}
 			break;
 		case 3:
+			logger::log("Main: Multiplayer client.\n");
 			exitstat = mutliplayer_client();
 			if (exitstat != 0) {
 				logger::log("Something went wrong with the game: M: Client.\n");
@@ -58,9 +63,11 @@ int main() {
 			}
 			break;
 		default:
+			logger::log("Main: Bad choice.\n");
 			cout << "No such option.\n";
 		}
 	}
+	logger::log("Exiting main.\n");
 	return 0;
 }
 

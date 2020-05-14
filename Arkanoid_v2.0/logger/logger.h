@@ -10,6 +10,8 @@
 class logger {
 	static std::fstream log_file;
 	logger();
+	static time_t timer;
+	static char buffer[256];
 public:
 	static void open_log();
 	static void log(std::stringstream&);

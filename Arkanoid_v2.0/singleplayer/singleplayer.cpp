@@ -53,7 +53,8 @@ void play_level_single(GLFWwindow*, Shader&, level&, player&);
 // A function that creates a context window and intializes gameplay for a single player
 int singleplayer() {
 	//	--------------------------------------------------------------------------------------------------------------------
-// Here starts window and context initialization
+	// Here starts window and context initialization
+	logger::log("    Singleplayer: initializing window and graphics.\n");
 	glfwInit(); // Initializes GLFW
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);	// OpenGL version 3.*
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);	// OpenGL version *.3
@@ -78,12 +79,14 @@ int singleplayer() {
 
 	//	--------------------------------------------------------------------------------------------------------------------
 	// now take care of shaders with a special object
+	logger::log("    Singleplayer: initializing shader.\n");
 	Shader SO("./shader/vertexShader.vert", "./shader/fragmentShader.frag");
 	SO.use();
 
 	glEnable(GL_DEPTH_TEST);
 
 	// Load level and initialize gameplay
+	logger::log("    Singleplayer: loading level.\n");
 	bonus dummy_bonus(glm::vec2(0.0f, -20.0f), 0);
 	level _level;
 	player _player;
@@ -96,8 +99,11 @@ int singleplayer() {
 		logger::log(ss);
 		return 1;
 	}
+	logger::log("    Singleplayer: initializing gameplay.\n");
 	play_level_single(window, SO, _level, _player);
 	cout << "\r\nYou scored: " << _level.score << endl;
+
+	logger::log("    Singleplayer: cleaning up.\n");
 	_player.resetMouseAction();
 	_level.clean_level();
 
@@ -105,6 +111,7 @@ int singleplayer() {
 	//at the end we want to properly clean the resources
 	glfwTerminate();
 
+	logger::log("    Singleplayer: exiting.\n");
 	return 0;
 }
 
@@ -116,6 +123,7 @@ void framebuffer_size_callback(GLFWwindow*, int width, int height) { // a functi
 // Function for gameplay
 void play_level_single(GLFWwindow *window, Shader &_SO, level &_level, player &_player) {
 	// Initialize callbacks, view and projection
+	logger::log("        Singleplayer play level: initializing callbacks and perspective.\n");
 	glfwSetCursorPosCallback(window, player::mouse_callback);
 	if (_level.bricks.size() > 0) _level.end_level = false;
 	float deltaTime = 0.0f;
@@ -133,6 +141,7 @@ void play_level_single(GLFWwindow *window, Shader &_SO, level &_level, player &_
 
 
 	// start rendering loop
+	logger::log("        Singleplayer play level: starting rendering loop.\n");
 	while (!_level.end_level) {
 		_level.level_process_input(window);
 
@@ -161,4 +170,6 @@ void play_level_single(GLFWwindow *window, Shader &_SO, level &_level, player &_
 	}
 
 	_player.resetMouseAction();
+
+	logger::log("        Singleplayer play level: ended rendering loop; exit.\n");
 }
