@@ -122,8 +122,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>E:\LibsAndIncludes\Include\;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\LibsAndIncludes\Libs\;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\c++_projects\opengl_test\git\Arkanoid_v2.0\Arkanoid_v2.0\LibsAndIncludes\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\c++_projects\opengl_test\git\Arkanoid_v2.0\Arkanoid_v2.0\LibsAndIncludes\Libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

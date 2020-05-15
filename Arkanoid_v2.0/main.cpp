@@ -6,6 +6,21 @@
 #include "stb_image.h"
 #endif
 
+#ifndef COMM_BUFLEN
+#define COMM_BUFLEN 512
+#endif
+char sendbuffer[COMM_BUFLEN];
+char recvbuffer[COMM_BUFLEN];
+bool ReadyToSend = true;		// true if thread ready to send, false if in the middle of communication
+bool ReadyToUpdate = false;		// true if data are updated, false if there is no or only old data in the buffer
+bool CommunicationControl = false;
+bool ShouldEnd = false;
+int bricks_count_old = 0;
+int bonuses_count_old = 0;
+int bricks_count_new = 0;
+int bonuses_count_new = 0;
+int package_size = 0;
+
 #include "singleplayer/singleplayer.h"
 #include "multiplayer_server/multiplayer_server.h"
 #include "multiplayer_client/multiplayer_client.h"

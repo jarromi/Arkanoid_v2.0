@@ -41,17 +41,18 @@
 #ifndef _COMMUNICATION_GLOBALS_
 #define _COMMUNICATION_GLOBALS_
 // here are global variables and macros for network and thread communication
-#define DEFAULT_BUFLEN 1024
+#ifndef COMM_BUFLEN
 #define COMM_BUFLEN 512
+#endif
 #define DEFAULT_PORT "8888"
-char sendbufferC[COMM_BUFLEN];
-char recvbufferC[COMM_BUFLEN];
-bool ReadyToSendC = true;		// true if thread ready to send, false if in the middle of communication
-bool ReadyToUpdateC = false;		// true if data are updated, false if there is no or only old data in the buffer
-bool ShouldEndC = false;
-bool CommunicationControlC = false;
-int bricks_count_newC = 0;
-int bonuses_count_newC = 0;
+extern char sendbuffer[COMM_BUFLEN];
+extern char recvbuffer[COMM_BUFLEN];
+extern bool ReadyToSend;		// true if thread ready to send, false if in the middle of communication
+extern bool ReadyToUpdate;		// true if data are updated, false if there is no or only old data in the buffer
+extern bool ShouldEnd;
+extern bool CommunicationControl;
+extern int bricks_count_new;
+extern int bonuses_count_new;
 #endif
 
 #include "multiplayer_client.h"
@@ -143,10 +144,8 @@ int mutliplayer_client() {
 
 	logger::log("    Multiplayer client: greeting.\n");
 	string WelcomeMessage = "Hello, this is client, I want to play Arkanoid.";
-	char recvbuf[DEFAULT_BUFLEN] = {}; // network communication buffer
-	int recvbuflen = DEFAULT_BUFLEN;
 
-	_iRes = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+	_iRes = recv(ConnectSocket, recvbuffer, COMM_BUFLEN, 0);
 	if (_iRes == SOCKET_ERROR) {
 		std::stringstream ss;
 		ss << "Recive failed! " << WSAGetLastError() << endl;
@@ -155,9 +154,9 @@ int mutliplayer_client() {
 		WSACleanup();
 		return 1;
 	}
-	cout << recvbuf << endl;
-	strcpy_s(recvbuf, WelcomeMessage.length()+1, WelcomeMessage.c_str());
-	_iRes = send(ConnectSocket, recvbuf, WelcomeMessage.length(), 0);
+	cout << recvbuffer << endl;
+	strcpy_s(recvbuffer, WelcomeMessage.length()+1, WelcomeMessage.c_str());
+	_iRes = send(ConnectSocket, recvbuffer, WelcomeMessage.length(), 0);
 	if (_iRes == SOCKET_ERROR) {
 		std::stringstream ss;
 		ss << "Send failed! " << WSAGetLastError() << endl;
@@ -214,27 +213,25 @@ int mutliplayer_client() {
 		logger::log(ss);
 		return 1;
 	}
-	bricks_count_newC = _level.bricks.size();
-	bonuses_count_newC = _level.bonuses.size();
+	bricks_count_new = _level.bricks.size();
+	bonuses_count_new = _level.bonuses.size();
 	player _player_host(glm::vec3(0.0f,0.0f,1.0f));
 	logger::log("    Multiplayer client: initializing gameplay and communication.\n");
 	std::thread comms(communicate_client, std::ref(ConnectSocket));
 	play_level_client(window, SO, _level, _player_host, _player_client);
-
-	//gameplay.join();
 	comms.join();
 
 	logger::log("    Multiplayer client: resetting globals and closing window.\n");
 	//reset globals
-	ReadyToSendC = true;
-	ReadyToUpdateC = false;
-	ShouldEndC = false;
-	CommunicationControlC = false;
+	ReadyToSend = true;
+	ReadyToUpdate = false;
+	ShouldEnd = false;
+	CommunicationControl = false;
 
 	glfwTerminate();
 
 	logger::log("    Multiplayer client: closing socket.\n");
-	_iRes = shutdown(ConnectSocket, SD_SEND);
+/*	_iRes = shutdown(ConnectSocket, SD_SEND);
 	if (_iRes == SOCKET_ERROR) {
 		std::stringstream ss;
 		ss << "Shutdown failed! " << WSAGetLastError() << endl;
@@ -242,7 +239,7 @@ int mutliplayer_client() {
 		closesocket(ConnectSocket);
 		WSACleanup();
 		return 1;
-	}
+	}*/
 
 	closesocket(ConnectSocket);
 	WSACleanup();
@@ -282,10 +279,12 @@ void play_level_client(GLFWwindow* window, Shader& _SO, level& _level, player& _
 	logger::log("        Multiplayer client play: start the rendering loop.\n");
 	while (!_level.end_level) {
 		_level.level_process_input(window);
+		Sleep(10);
 
 		float timeVal = glfwGetTime();
 		deltaTime = timeVal - lastFrame;
 		lastFrame = timeVal;
+		cout << deltaTime << "\r";
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);	// set the default color to which the screen is reset
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// clear the screen
@@ -310,17 +309,17 @@ void play_level_client(GLFWwindow* window, Shader& _SO, level& _level, player& _
 		glfwPollEvents();
 
 		//now we perform communication
-		if (!CommunicationControlC) {
-			if (ReadyToUpdateC) {
+		if (!CommunicationControl) {
+			if (ReadyToUpdate) {
 				// update based on recieved data
-				float* _lptr = (float*)recvbufferC;	// beggining of memory for communication
-				float* _rptr = (float*)(recvbufferC + COMM_BUFLEN);	// end of memory for communication
+				float* _lptr = (float*)recvbuffer;	// beggining of memory for communication
+				float* _rptr = (float*)(recvbuffer + COMM_BUFLEN);	// end of memory for communication
 				// get balls count
 				int host_ball_count = *((int*)_lptr);
 				_lptr += 1;
-				bricks_count_newC = *((int*)_lptr);
+				bricks_count_new = *((int*)_lptr);
 				_lptr += 1;
-				bonuses_count_newC = *((int*)_lptr);
+				bonuses_count_new = *((int*)_lptr);
 				_lptr += 1;
 				// copy platform data
 				_lptr = _player1.plat.read_props(_lptr, _rptr);
@@ -335,75 +334,69 @@ void play_level_client(GLFWwindow* window, Shader& _SO, level& _level, player& _
 				while (host_ball_count < _level.balls.size()) { // erase balls over the limit
 					_level.balls.erase(_level.balls.begin() + (_level.balls.size() - 1));
 				}
-				if (bricks_count_newC != _level.bricks.size()) {
-					for (int i = 0; i < bricks_count_newC; ++i) {
+				if (bricks_count_new != _level.bricks.size()) {
+					for (int i = 0; i < bricks_count_new; ++i) {
 						if (i >= _level.bricks.size()) {
 							brick new_brick;
 							_level.bricks.push_back(new_brick);
 						}
 						_lptr = _level.bricks[i].read_props(_lptr, _rptr);
 					}
-					while (bricks_count_newC < _level.bricks.size()) {
+					while (bricks_count_new < _level.bricks.size()) {
 						_level.bricks.erase(_level.bricks.begin() + (_level.bricks.size() - 1));
 					}
 				}
-				if (bonuses_count_newC != _level.bonuses.size()) {
-					for (int i = 0; i < bonuses_count_newC; ++i) {
+				if (bonuses_count_new != _level.bonuses.size()) {
+					for (int i = 0; i < bonuses_count_new; ++i) {
 						if (i >= _level.bonuses.size()) {
 							bonus new_bonus;
 							_level.bonuses.push_back(new_bonus);
 						}
 						_lptr = _level.bonuses[i].read_props(_lptr, _rptr);
 					}
-					while (bonuses_count_newC < _level.bonuses.size()) {
+					while (bonuses_count_new < _level.bonuses.size()) {
 						_level.bonuses.erase(_level.bonuses.begin() + (_level.bonuses.size() - 1));
 					}
 				}
-				ReadyToUpdateC = false;	// tell the communication thread that it needs to send data
+				ReadyToUpdate = false;	// tell the communication thread that it needs to send data
 			}
 			//update recieved data
-			if (ReadyToSendC) {
-				float* _lptr = (float*)sendbufferC;	// beggining of memory for communication
-				float* _rptr = (float*)(sendbufferC + COMM_BUFLEN);	// end of memory for communication
+			if (ReadyToSend) {
+				float* _lptr = (float*)sendbuffer;	// beggining of memory for communication
+				float* _rptr = (float*)(sendbuffer + COMM_BUFLEN);	// end of memory for communication
 				// update player 2 info
 				_lptr = _player2.plat.comm_props(_lptr, _rptr);
-				ReadyToSendC = false;	// data are updated and recvbuffer has old data now
+				ReadyToSend = false;	// data are updated and recvbuffer has old data now
 			}
-			CommunicationControlC = true;
+			CommunicationControl = true;
 		}
 
 	}
 	logger::log("        Multiplayer client play: reset globals.\n");
-	ShouldEndC = true;
-	ReadyToSendC = true;
-	ReadyToUpdateC = false;
-	CommunicationControlC = false;
-	logger::log("        Multiplayer server play: exit.\n");
+	ShouldEnd = true;
+	ReadyToSend = true;
+	ReadyToUpdate = false;
+	CommunicationControl = false;
+	logger::log("        Multiplayer client play: exit.\n");
 }
 
 // This is a function run in thread comms that is responsible for server-client communication
 void communicate_client(SOCKET& ClientSocket) {
 	int _iRes;
-	while (!ShouldEndC) {
-		//std::cout << glfwGetTime() << "\r";
-		if (CommunicationControlC) {
-			if (!ReadyToSendC) {	// if ReadyToSend = true there's no need to communicate, if false there are new data in sendbuffer
-				_iRes = recv(ClientSocket, (char*)recvbufferC, COMM_BUFLEN, 0);	// send data to client
-				if (_iRes == SOCKET_ERROR) {
-					cout << "Recive failed! " << WSAGetLastError() << ReadyToUpdateC << endl;
+	while (!ShouldEnd) {
+		if (CommunicationControl) {
+			if (!ReadyToSend) {	// if ReadyToSend = true there's no need to communicate, if false there are new data in sendbuffer
+				_iRes = recv(ClientSocket, (char*)recvbuffer, COMM_BUFLEN, 0);	// send data to client
+				if (_iRes != SOCKET_ERROR) {
+					ReadyToUpdate = true;
 				}
-				else {
-					ReadyToUpdateC = true;
-				}
-				//std::cout << _iRes << "\n";
-				_iRes = send(ClientSocket, (char*)sendbufferC, 6 * sizeof(float), 0);	// get data from client
-				if (_iRes == SOCKET_ERROR) {
-					cout << "Send failed! " << WSAGetLastError() << endl;
-				}
-				ReadyToSendC = true;
+				_iRes = send(ClientSocket, (char*)sendbuffer, 6 * sizeof(float), 0);	// get data from client
+
+				ReadyToSend = true;
 			}
-			CommunicationControlC = false;
+			CommunicationControl = false;
 		}
+		Sleep(10);
 	}
-	ShouldEndC = false;
+	ShouldEnd = false;
 }

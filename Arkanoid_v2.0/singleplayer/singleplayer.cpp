@@ -101,7 +101,6 @@ int singleplayer() {
 	}
 	logger::log("    Singleplayer: initializing gameplay.\n");
 	play_level_single(window, SO, _level, _player);
-	cout << "\r\nYou scored: " << _level.score << endl;
 
 	logger::log("    Singleplayer: cleaning up.\n");
 	_player.resetMouseAction();
@@ -144,11 +143,11 @@ void play_level_single(GLFWwindow *window, Shader &_SO, level &_level, player &_
 	logger::log("        Singleplayer play level: starting rendering loop.\n");
 	while (!_level.end_level) {
 		_level.level_process_input(window);
+		Sleep(10);
 
 		float timeVal = glfwGetTime();
 		deltaTime = timeVal - lastFrame;
 		lastFrame = timeVal;
-		std::cout << "Your score is: " << _level.score << "\r";
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);	// set the default color to which the screen is reset
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// clear the screen
