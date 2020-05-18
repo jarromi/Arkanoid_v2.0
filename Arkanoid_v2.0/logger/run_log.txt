@@ -1,20 +1,4 @@
-2020 May 18 10:24:45
-2020 May 18 10:24:45	In main - choice.
-2020 May 18 10:24:46	Main: Multiplayer client.
-2020 May 18 10:24:46	    Multiplayer client: initializing connection socket.
-2020 May 18 10:24:48	    Multiplayer client: trying to connect.
-2020 May 18 10:24:48	    Multiplayer client: greeting.
-2020 May 18 10:24:48	    Multiplayer client: initializing window and graphics.
-2020 May 18 10:24:49	    Multiplayer client: initializing shaders.
-2020 May 18 10:24:49	    Multiplayer client: loading level.
-2020 May 18 10:24:49	    Multiplayer client: initializing gameplay and communication.
-2020 May 18 10:24:49	        Multiplayer client play: initializing callbacks and perspective.
-2020 May 18 10:24:49	        Multiplayer client play: start the rendering loop.
-2020 May 18 10:25:44	        Multiplayer client play: reset globals.
-2020 May 18 10:25:44	        Multiplayer client play: exit.
-2020 May 18 10:25:44	    Multiplayer client: resetting globals and closing window.
-2020 May 18 10:25:44	    Multiplayer client: closing socket.
-2020 May 18 10:25:44	    Multiplayer client: exit.
-2020 May 18 10:25:44	In main - choice.
-2020 May 18 10:25:47	Main: exit choice.
-2020 May 18 10:25:47	Exiting main.
+2020 May 18 11:14:32
+2020 May 18 11:14:32	In main - choice.
+2020 May 18 11:14:43	Main: exit choice.
+2020 May 18 11:14:43	Exiting main.
