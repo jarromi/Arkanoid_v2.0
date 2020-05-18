@@ -38,7 +38,7 @@ The code has been written using Visual Studio Community so it is best to
 run it in the same environments. E.g., if using CodeBlocks liking of winsock
 libraries might look slightly different.
 
-Apart form standard C++ libraries I have been working with quite a few other
+Apart from standard C++ libraries I have been working with quite a few other
 APIs, mostly for the purpose of simplifying graphics programming with OpenGL.
 Therefore, in order to run the game one needs:
 1. GLFW3 - API for window, context creation in OpenGL: https://www.glfw.org/,
@@ -64,62 +64,65 @@ be changed under: Project->Properties->VC++ Directories->Include/Library Dirs.
 #### Issues
 
 When running the game I have observed some issues:
-1. Rarely (about 3% of the cases) the game crashed during multiplayer gameplay.
+1. Rarely (about 5% of the cases) the game crashed during multiplayer gameplay.
 I believe this issue is related to the server-client communication and its
 implementation with threads but I haven't resolved it yet. I have placed the
 communication in separate thread and used blocking communication there.
-Blocking mode was used since we only need to communicate single server with
-a single client. It was placed in a different thread in order to avoid freezing
-the gameplay when communication goes wrong.
-2. Rarely (also about 3% of the cases) the games crashes when loading
+Blocking mode has been used since we only need to communicate single server
+with a single client. It was placed in a different thread in order to avoid
+freezing the gameplay when communication goes wrong.
+2. Rarely (also about 5% of the cases) the games crashes when loading
 multiplayer server/client. This issue also haven't been resolved.
 3. Collision detection: bonus-platform. The game is designed in a way that
 server should control the gameplay and client should only control his platform.
-However, because of this solution client might miss catching bonus (e.g., when
-bonus jumps due to update with data form server). Then client does not update
+However, because of this solution, client might miss catching bonus (e.g., when
+bonus jumps due to update with data from server). Then client does not update
 the state of his platform appropriately (no collision detected).
-4. Collision detection: ball-brick. The current version handles ball-bounce
-off the bricks edge differently than off the corner. Since collision detection
-goes through the list of all bricks independently it will handle corner bounces
-seperately for each brick. This might lead to weird behavior when the ball hits
-the corner shared by two bricks.
+4. Collision detection: ball-brick. The current version of the program
+handles ball-bounce off the bricks edge differently than off the corner.
+Since collision detection goes through the list of all the bricks
+independently it handles corner bounces separately for each brick. This might
+lead to unexpected behaviour when the ball hits the corner shared by two bricks.
 
 
 #### To-do list:
 
 Most relevant - resolving issues:
-1. Solve the issues with unfrequent crashes. Possibly threading in here is
+1. Solve the issues with infrequent crashes. Possibly threading in here is
 an overkill.
-2. Solve the issues with unfrequent crashes during loading.
-3. Improve the server-client communication - let the server handle collisions
-between bonuses and both platforms. Client should control only postion of his
-platform.
-4. Imporve the ball-brick collision algorithm. Do not allow bounces into other
-bricks or simplify the collisions.
+2. Solve the issues with infrequent crashes during loading.
+3. Improve the server-client communication - let the server handle
+the collisions between bonuses and both platforms. Client should control
+only position of his platform.
+4. Improve the ball-brick collision algorithm. The algorithm should handle 
+collisions for two bricks at the same time, if the ball is in the collision
+region for both simultaneously.
 
 Second priority - improve the gameplay and graphics:
 1. For now only a single level is implemented with a single ball speed. Adding
 levels with different bricks arrangement and ball speeds would be good.
-2. This version follows simple Arcanoid gameplay without adding enything
-original. It would be recommended to add new aspects to the gameplay. E.g., one
+2. This version follows simple Arkanoid gameplay without adding 
+anything
+original.
+ It would be recommended to add new aspects to the gameplay. E.g., one
 could leverage the fact that the game is multiplayer:
 	- force the players to cooperate more by sharing the platform control
 	between them,
-	- adding several stages with view controled by mouse and platform controled
-	by keyboard and forcing the players to play on several stages
+	- adding several stages with view controlled by mouse and platform
+	controlled	by keyboard and forcing the players to play on several stages
 	simultaneously,
 	- ...
 3. Enhance the graphics. Right now the game uses very simple models and
-textures. It would be niceto add more detailed models, nicer textures, add
+textures. It would be nice to add more detailed models, nicer textures, add
 lighting effects, etc.
 4. Remove the console aspect of the game. Because I haven't yet finished the 
 text rendering in OpenGL for the game, the text has to be either loaded as a
-texture or diplayed on the console. This is not the intended solution. When
-text displaying support will be available the game should get its own start
+texture or displayed on the console. This is not the intended solution. When
+text displaying support will be available, the game should get its own start
 screen, score counter, etc.
 
 Last priority:
 1. At this point the game has to be compiled using some C++ programming
-evnironment. This is of course not ideal - especially with the external APIs.
-In future it would be good to make a installer, that takes care of these steps
-and generates easy to use executable.
+environment. This is of course not ideal - especially with the external APIs.
+In the future it would be good to make an installer that takes care of these
+steps and generates an easy to use executable.
