@@ -21,8 +21,8 @@ and simple (but no hardwired IP addresses)."
 
 I have chosen to implement an Arkanoid game, with co-op for two players.
 I have been working on Windows platform with Visual Studio Community 2019
-and haven't test the code on other programming environments. In this repository
-I include:
+and haven't tested the code on other programming environments. In this
+repository I include:
 1) files with the source code of a working version,
 2) .sln file with Visual Studio solution,
 3) .proj\* files with Visual Studio project.
@@ -35,7 +35,7 @@ download and setup of API's listed below is recommended.
 The code has been written for Windows platforms with winsock2.
 
 The code has been written using Visual Studio Community so it is best to
-run it in the same environments. E.g., if using CodeBlocks liking of winsock
+run it in the same environment. E.g., if using CodeBlocks linking of winsock
 libraries might look slightly different.
 
 Apart from standard C++ libraries I have been working with quite a few other
@@ -66,18 +66,22 @@ be changed under: Project->Properties->VC++ Directories->Include/Library Dirs.
 When running the game I have observed some issues:
 1. Rarely (about 5% of the cases) the game crashed during multiplayer gameplay.
 I believe this issue is related to the server-client communication and its
-implementation with threads but I haven't resolved it yet. I have placed the
-communication in separate thread and used blocking communication there.
-Blocking mode has been used since we only need to communicate single server
+implementation with threads but I haven't resolved it yet. I have opted for an
+algorithm, where main thread is responsible for the gameplay and graphics while
+another handles only server-client communication in blocking mode.
+Blocking mode has been used since we only need to communicate a single server
 with a single client. It was placed in a different thread in order to avoid
 freezing the gameplay when communication goes wrong.
 2. Rarely (also about 5% of the cases) the games crashes when loading
 multiplayer server/client. This issue also haven't been resolved.
 3. Collision detection: bonus-platform. The game is designed in a way that
 server should control the gameplay and client should only control his platform.
-However, because of this solution, client might miss catching bonus (e.g., when
-bonus jumps due to update with data from server). Then client does not update
-the state of his platform appropriately (no collision detected).
+In this scheme it is client that detects collisions between platform and bonus
+(an object that sometimes appears and can be captured to make the platform
+wider or double the amount of balls). However, in this solution, client might
+miss catching bonus, i.e., when bonus jumps due to an update of its position
+according to data received from the server. Then client might not update
+the state of his platform appropriately (collision is not detected).
 4. Collision detection: ball-brick. The current version of the program
 handles ball-bounce off the bricks edge differently than off the corner.
 Since collision detection goes through the list of all the bricks
