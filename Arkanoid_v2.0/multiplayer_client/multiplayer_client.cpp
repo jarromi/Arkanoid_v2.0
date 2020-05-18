@@ -174,7 +174,7 @@ int mutliplayer_client() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);	// OpenGL version *.3
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // OpenGL use core profile
 	// Now we create a window (800x600 pixels)
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Arkanoid_v2.0_Client", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(600, 600, "Arkanoid_v2.0_Client", NULL, NULL);
 	if (window == NULL) {
 		logger::log("Failed to open window.\n");
 		return 1;
@@ -269,7 +269,7 @@ void play_level_client(GLFWwindow* window, Shader& _SO, level& _level, player& _
 	unsigned int tView = glGetUniformLocation(_SO.ID, "view");
 	glUniformMatrix4fv(tView, 1, GL_FALSE, glm::value_ptr(view));
 
-	glm::mat4 proj = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+	glm::mat4 proj = glm::perspective(glm::radians(45.0f), 600.0f / 600.0f, 0.1f, 100.0f);
 	unsigned int tProj = glGetUniformLocation(_SO.ID, "proj");
 	glUniformMatrix4fv(tProj, 1, GL_FALSE, glm::value_ptr(proj));
 

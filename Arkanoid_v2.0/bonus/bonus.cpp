@@ -350,7 +350,7 @@ float* bonus::read_props(float* _lptr, float* _rptr) {
 	// Propagates bonus down
 void bonus::propagate(const float& deltaTime) {
 	if (position.y > -20.0f) {
-		position.y -= 5. * deltaTime;
+		position.y -= 3. * deltaTime;
 		modelMatrix = glm::mat4(1.0);
 		modelMatrix = glm::translate(modelMatrix, position);
 	}

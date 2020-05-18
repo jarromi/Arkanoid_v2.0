@@ -1,15 +1,20 @@
-2020 May 15 12:57:06
-2020 May 15 12:57:06	In main - choice.
-2020 May 15 12:57:08	Main: Singleplayer.
-2020 May 15 12:57:08	    Singleplayer: initializing window and graphics.
-2020 May 15 12:57:08	    Singleplayer: initializing shader.
-2020 May 15 12:57:08	    Singleplayer: loading level.
-2020 May 15 12:57:09	    Singleplayer: initializing gameplay.
-2020 May 15 12:57:09	        Singleplayer play level: initializing callbacks and perspective.
-2020 May 15 12:57:09	        Singleplayer play level: starting rendering loop.
-2020 May 15 12:57:37	        Singleplayer play level: ended rendering loop; exit.
-2020 May 15 12:57:37	    Singleplayer: cleaning up.
-2020 May 15 12:57:37	    Singleplayer: exiting.
-2020 May 15 12:57:37	In main - choice.
-2020 May 15 12:57:39	Main: exit choice.
-2020 May 15 12:57:39	Exiting main.
+2020 May 18 10:24:45
+2020 May 18 10:24:45	In main - choice.
+2020 May 18 10:24:46	Main: Multiplayer client.
+2020 May 18 10:24:46	    Multiplayer client: initializing connection socket.
+2020 May 18 10:24:48	    Multiplayer client: trying to connect.
+2020 May 18 10:24:48	    Multiplayer client: greeting.
+2020 May 18 10:24:48	    Multiplayer client: initializing window and graphics.
+2020 May 18 10:24:49	    Multiplayer client: initializing shaders.
+2020 May 18 10:24:49	    Multiplayer client: loading level.
+2020 May 18 10:24:49	    Multiplayer client: initializing gameplay and communication.
+2020 May 18 10:24:49	        Multiplayer client play: initializing callbacks and perspective.
+2020 May 18 10:24:49	        Multiplayer client play: start the rendering loop.
+2020 May 18 10:25:44	        Multiplayer client play: reset globals.
+2020 May 18 10:25:44	        Multiplayer client play: exit.
+2020 May 18 10:25:44	    Multiplayer client: resetting globals and closing window.
+2020 May 18 10:25:44	    Multiplayer client: closing socket.
+2020 May 18 10:25:44	    Multiplayer client: exit.
+2020 May 18 10:25:44	In main - choice.
+2020 May 18 10:25:47	Main: exit choice.
+2020 May 18 10:25:47	Exiting main.
